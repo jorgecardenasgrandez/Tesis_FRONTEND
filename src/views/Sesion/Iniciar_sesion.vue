@@ -24,9 +24,10 @@
                             ref="form"
                             v-model="valid"
                             lazy-validation
+                            @submit.prevent="login"
                         >
                             <v-text-field
-                            v-model="name"
+                            v-model="sesion.username"
                             :rules="usuarioRules"
                             label="Usuario"
                             prepend-icon="mdi-account"
@@ -34,7 +35,7 @@
                             ></v-text-field>
 
                             <v-text-field
-                            v-model="contrasena"
+                            v-model="sesion.contrasena"
                             :append-icon="show_eye ? 'mdi-eye' : 'mdi-eye-off'"
                             :rules="passRules"
                             :type="show_eye ? 'text' : 'password'"
@@ -45,12 +46,12 @@
                             ></v-text-field>
 
                             <v-btn
+                            type="submit"
                             :disabled="!valid"
                             block
                             rounded
                             color="success"
                             class="mt-4 mr-1 ml-1"
-                            @click="validate"
                             >
                             Ingresar
                             </v-btn>
@@ -58,17 +59,32 @@
                 </v-card>
             </v-col>
         </v-row>
+
+        <v-snackbar
+            v-model="snack.model_snack"
+            color = "error"
+        >
+            {{ snack.msg }}
+            <v-btn
+                color="black"
+                text
+                @click="snack.model_snack = false"
+            >
+                Cerrar
+            </v-btn>
+        </v-snackbar>
+
     </v-container>
 </template>
 
 <script>
+import {mapMutations, mapState} from 'vuex';
+
     export default {
         data(){
             return{
                 valid:true,
-                name:'',
                 show_eye:false,
-                contrasena:'',
                 usuarioRules: [
                     v => !!v || 'El usuario es requerido.'
                 ],
@@ -78,9 +94,28 @@
             }
         },
         
+        computed:{
+            ...mapState('usuarios_main',['sesion', 'snack'])
+        },
+
         methods: {
-            validate () {
-                this.$refs.form.validate()
+            login(){
+                let valid = this.$refs.form.validate()
+                console.log(this.sesion.username, this.sesion.contrasena)
+                if (valid){
+                    let user = {
+                        username:this.sesion.username,
+                        contrasena:this.sesion.contrasena
+                    }
+                    this.$store.dispatch('usuarios_main/recibirToken',user)
+                    this.reset()
+                }  
+            },
+            resetValidation () {
+                this.$refs.form.resetValidation()
+            },
+            reset () {
+                this.$refs.form.reset()
             }
         },
 

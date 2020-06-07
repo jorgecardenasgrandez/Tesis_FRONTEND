@@ -8,11 +8,19 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    token:null
   },
+  
   mutations: {
+    setToken(state, tkn){
+      this.token = tkn
+    }
   },
+
   actions: {
+    
   },
+
   modules: {
     simula, usuarios_main, paciente_main
   }

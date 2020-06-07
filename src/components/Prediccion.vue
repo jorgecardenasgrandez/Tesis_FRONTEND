@@ -37,11 +37,13 @@
                     
                     <v-form
                         ref="form"
-                        v-model="valid"
+                        v-model="simulacion.valid"
                         lazy-validation
+                        @submit.prevent="prediccion"
                     >
                         <v-card-text>
-                            <v-expansion-panels>
+                            <v-expansion-panels 
+                                v-model="simulacion.panel">
                                 <v-col cols="12">
                                     <v-expansion-panel>
                                         <v-expansion-panel-header>Datos basicos</v-expansion-panel-header>
@@ -111,6 +113,8 @@
                                                         rounded
                                                         filled
                                                         label="Peso (kg)"
+                                                        hint="Max:30."
+                                                        persistent-hint
                                                         required
                                                     ></v-text-field>
                                                 </v-col>
@@ -233,8 +237,8 @@
 
                         <v-card-actions>
                             <v-btn block :color="simulacion.boton_color" class="mb-2 white--text"  rounded 
-                            :disabled="!valid"
-                            @click="validate"> 
+                            type="submit"
+                            :disabled="!simulacion.valid"> 
                                 <v-icon left>mdi-chart-arc</v-icon>
                                 Predecir</v-btn>
                         </v-card-actions>
@@ -250,21 +254,35 @@
                             class="mx-auto"
                             max-width="344"
                         >
-                            <v-img src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg"></v-img>
+                            <v-img src="../assets/forest-art.jpg"></v-img>
 
                             <v-card-text>
-                            <h2 class="title primary--text">Magento Forests</h2>
-                            Travel to the best outdoor experience on planet Earth. A vacation you will never forget!
+                                <h2 class="title">Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span></h2>
+                                <p>DNI      : {{auxiliar.dni}}</p>
+                                <p>Nombre   : {{auxiliar.nombre}}</p>
+                                <!--<v-divider></v-divider>
+                                <p>Edad     : {{auxiliar.age_at_surgery}}</p>
+                                <p>Sexo     : {{auxiliar.gender}}</p>
+                                <p>Peso     : {{auxiliar.weight}}</p>
+                                <p>Prematuridad     : {{auxiliar.prematurity}}</p>
+                                <p>CPB_Min     : {{auxiliar.cpb_min}}</p>
+                                <p>Antifibrinolytics     : {{auxiliar.antifibrinolytics}}</p>
+                                <p>Bombeo     : {{auxiliar.pumpnonpump}}</p>
+                                <p>DHCA_Min     : {{auxiliar.dhca_min}}</p>
+                                <p>AOX_time     : {{auxiliar.aox_time}}</p>
+                                <p>Pre_opcr     : {{auxiliar.pre_opcr}}</p>
+                                <v-divider></v-divider>
+                                <p>Modelo     : {{auxiliar.model_choice}}</p>-->
                             </v-card-text>
 
-                            <v-fade-transition>
-                            <v-overlay
-                                v-if="hover"
-                                absolute
-                                color="#036358"
-                            >
-                                <v-btn @click="cambiar_a_simualcion">SIMULACION</v-btn>
-                            </v-overlay>
+                            <v-fade-transition v-if="resultado.survival == false">
+                                <v-overlay
+                                    v-if="hover"
+                                    absolute
+                                    color="#036358"
+                                >
+                                    <v-btn @click="cambiar_a_simulacion">SIMULACION</v-btn>
+                                </v-overlay>
                             </v-fade-transition>
                         </v-card>
                     </template>
@@ -272,22 +290,59 @@
             </v-col>
 
         </v-row>
+
+        <v-snackbar
+            v-model="snack.vm"
+            :color="snack.color"
+        >
+            {{ snack.msg }}
+            <v-btn
+                color="black"
+                text
+                @click="snack.vm = false"
+            >
+                Cerrar
+            </v-btn>
+        </v-snackbar>
+
     </v-container>
 </template>
 
 <script>
 import {mapState, mapMutations} from 'vuex';
+import axios from 'axios';
+
     export default {
         name:'Prediccion',
         data(){
             return{
-                valid:true,
-                txtfieldRules: [
+                snack:{
+                    vm:false,
+                    color:'',
+                    msg:''
+                },
+                auxiliar:{
+                    dni:'',
+                    nombre:'',
+                    age_at_surgery:'',
+                    gender:'',
+                    weight:'',
+                    prematurity:'',
+                    cpb_min:'',
+                    antifibrinolytics:'',
+                    pumpnonpump:'',
+                    dhca_min:'',
+                    aox_time:'',
+                    pre_opcr:'',
+                    model_choice:''
+                },
+
+                txtfieldRules:[
                     v => !!v || 'Es requerido.'
                 ],
                 dniRules:[
                     v => !!v || 'El DNI es requerido.',
-                    v => v.length <= 8 || 'El DNI es menor a 8 caracteres.',
+                    v => (v && v.length == 8) || '8 caracteres.'
                 ],
                 edadRules:[
                     v => !!v || 'La edad es requerida.',
@@ -317,11 +372,108 @@ import {mapState, mapMutations} from 'vuex';
         },
         computed:{
             ...mapState('simula',['simulacion']),
-            ...mapState('paciente_main',['paciente', 'modelo'])
+            ...mapState('paciente_main',['paciente', 'modelo', 'resultado'])
         },
+
         methods:{
-            ...mapMutations('simula',['cambiar_a_simualcion']),
+            ...mapMutations('simula',['cambiar_a_simulacion', 'normalidad']),
             ...mapMutations('paciente_main',['mostrar']),
+
+            async prediccion(){
+                let valid = this.$refs.form.validate()
+                if (this.validarCampos() && valid){
+                    let sexo = this.paciente.sexo
+                    let parto = this.paciente.parto_prematuro
+                    let bombeo = this.paciente.bombeo
+
+                    if(sexo === "Masculino"){
+                        sexo = "1"
+                    }else{
+                        sexo = "0"
+                    }
+
+                    if(parto === "Si"){
+                        parto = "1"
+                    }else{
+                        parto = "0"
+                    }
+
+                    if(bombeo === "Si"){
+                        bombeo = "1"
+                    }else{
+                        bombeo = "0"
+                    }
+
+                    let paciente = {
+                        dni:this.paciente.dni,
+                        nombre:this.paciente.nombre,
+                        age_at_surgery:this.paciente.edad,
+                        gender:sexo,
+                        weight:this.paciente.peso,
+                        prematurity:parto,
+                        cpb_min:this.paciente.cpb_min,
+                        antifibrinolytics:this.paciente.antifibrinoliticos,
+                        pumpnonpump:bombeo,
+                        dhca_min:this.paciente.dhca_min,
+                        aox_time:this.paciente.aox_time,
+                        pre_opcr:this.paciente.pre_opcr,
+                        model_choice:this.modelo.ml,
+                        simulate:this.simulacion.simulate
+                    }
+                    //console.log(paciente)
+                    try {
+                        const response = await axios.post('predict', paciente)
+                        console.log(response.data)
+
+                        this.auxiliar.dni=response.data.DNI
+                        this.auxiliar.nombre=response.data.Nombre
+                        /*this.auxiliar.age_at_surgery=response.data.Feat[0]
+                        this.auxiliar.gender=response.data.Feat[1]
+                        this.auxiliar.weight=response.data.Feat[2]
+                        this.auxiliar.prematurity=response.data.Feat[3]
+                        this.auxiliar.cpb_min=response.data.Feat[4]
+                        this.auxiliar.antifibrinolytics=response.data.Feat[5]
+                        this.auxiliar.pumpnonpump=response.data.Feat[6]
+                        this.auxiliar.dhca_min=response.data.Feat[7]
+                        this.auxiliar.aox_time=response.data.Feat[8]
+                        this.auxiliar.pre_opcr=response.data.Feat[9]
+                        this.auxiliar.model_choice=response.data.Model*/
+
+                        this.resultado.survival = response.data.Prediction
+                        if (this.resultado.survival=="1"){ //SUPERVIVENCIA
+                            this.reset()
+                            this.resultado.txt = "Supervivencia"
+                            this.resultado.color = "green--text"
+
+                            this.normalidad()
+                        }else{ // MUERTE
+                            this.simulacion.valid = false
+                            this.resultado.txt = "Mortalidad"
+                            this.resultado.color = "red--text"
+                        }
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    
+                    //this.reset()
+                    
+                }else{
+                    this.snack.vm = true
+                    this.snack.color = "red"
+                    this.snack.msg = "Debe ingresar todos los campos."
+                }
+            },
+            
+            validarCampos(){
+                if(this.paciente.dni.length > 0 && this.paciente.nombre.length > 0 && this.paciente.edad.length > 0 &&
+                    this.paciente.sexo.length > 0 && this.paciente.peso.length > 0 && this.paciente.parto_prematuro.length > 0 && this.paciente.cpb_min.length > 0 &&
+                    this.paciente.antifibrinoliticos.length > 0 && this.paciente.bombeo.length > 0 && this.paciente.dhca_min.length > 0 && 
+                    this.paciente.aox_time.length > 0 && this.paciente.pre_opcr.length > 0 && this.modelo.ml.length > 0){
+                        return true
+                }else{
+                    return false
+                }
+            },
 
             isNumber(evt){
                 evt = (evt) ? evt : window.event;
@@ -333,8 +485,8 @@ import {mapState, mapMutations} from 'vuex';
                 }
             },
 
-            validate () {
-                this.$refs.form.validate()
+            reset () {
+                this.$refs.form.reset()
             }
         }
     }

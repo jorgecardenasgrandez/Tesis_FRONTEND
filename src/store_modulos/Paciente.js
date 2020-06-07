@@ -5,12 +5,7 @@ export default{
             dni:'',
             nombre:'',
             edad:'',
-            select_sexo:{sex:'', value:''},
             sexo:'',
-            sexo_auxi:[
-                {sex:"Masculino", value:"1"},
-                {sex:"Femenino", value:"0"}
-            ],
             peso:'',
             parto_prematuro:'',
             cpb_min:'',
@@ -22,6 +17,11 @@ export default{
         },
         modelo:{
             ml:''
+        },
+        resultado:{
+            survival:true,
+            txt:"", //por defecto
+            color: "success--text"
         }
     },
     mutations:{

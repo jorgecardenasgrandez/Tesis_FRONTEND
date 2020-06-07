@@ -8,7 +8,7 @@
         >
             <template v-slot:top>
                 <v-toolbar flat color="white">
-                    <v-toolbar-title>Usuarios</v-toolbar-title>
+                    <v-toolbar-title>Lista de usuarios</v-toolbar-title>
 
                     <v-divider
                     class="mx-4"
@@ -95,11 +95,27 @@
             <v-btn color="primary" @click="initialize">Reset</v-btn>
             </template>
         </v-data-table>
+
+        <v-snackbar
+            v-model="snack.mdl"
+            :color="snack.color"
+        >
+            {{ snack.msg }}
+            <v-btn
+                color="black"
+                text
+                @click="snack.mdl = false"
+            >
+                Cerrar
+            </v-btn>
+        </v-snackbar>
+
     </v-container>
 </template>
 
 <script>
 import {mapState} from 'vuex';
+import axios from 'axios';
 
     export default {
         username:'usernames',
@@ -110,6 +126,12 @@ import {mapState} from 'vuex';
             txtfieldRules: [
                 v => !!v || 'Es requerido.'
             ],
+
+            snack:{
+                mdl:false,
+                msg:'',
+                color:''
+            },  
 
             dialog: false,
             headers: [
@@ -146,8 +168,6 @@ import {mapState} from 'vuex';
         }),
 
         computed: {
-            ...mapState('usuarios_main',['usuarios']),
-
             formTitle () {
                 return this.editedIndex === -1 ? 'Nuevo usuario' : 'Editar usuario'
             },
@@ -171,36 +191,22 @@ import {mapState} from 'vuex';
                 this.$refs.form.resetValidation()
             },
 
-            initialize () {
-                /**
-                 *  NO OLVIDAR PONER EL ASYNC AL COSTADO DEL METODO
-                 *  try{
-                 *      const entradadb = await this.axios.get('ruta/')
-                 *      await entradadb.data.forEach(element =>{
-                 *          let usuario={}
-                 *          usuario.id = element.id
-                 *          usuario.first_name = element.first_name
-                 *          usuario.last_name = element.last_name
-                 *          usuario.username = element.username
-                 *          usuario.user_type = element.user_type
-                 *          this.valor_username.push(usuario)
-                 *      })
-                 *  }catch(error){
-                 *      console.log(error)
-                 *  }
-                 */
-                
-                this.usuarios.forEach(element =>{
-                    let usuario={}
-                    usuario.id = element.id
-                    usuario.first_name = element.first_name
-                    usuario.last_name = element.last_name
-                    usuario.username = element.username
-                    usuario.password = element.password
-                    usuario.user_type = element.user_type
-                    this.valor_username.push(usuario)
-                })
-
+            async initialize () {
+                try {
+                    const response = await axios.get('')
+                    await response.data.forEach(element => {
+                        let usuario = {}
+                        usuario.id = element.id
+                        usuario.first_name = element.first_name
+                        usuario.last_name = element.last_name
+                        usuario.username = element.username
+                        usuario.password = element.password
+                        usuario.user_type = element.user_type
+                        this.valor_username.push(usuario)
+                    })
+                } catch (error) {
+                    console.log(error.response.data)
+                }
             },
 
             editItem (item) {
@@ -209,15 +215,17 @@ import {mapState} from 'vuex';
                 this.dialog = true
             },
 
-            deleteItem (item) { //poner async
+            async deleteItem (item) { //poner async
                 const index = this.valor_username.indexOf(item)
-                const respuesta = confirm('¿Estas seguro de eliminar este elemento?') && this.valor_username.splice(index, 1)
+                const respuesta = confirm('¿Estas seguro de eliminar este usuario?') && this.valor_username.splice(index, 1)
 
-                /**
-                 * if (respuesta){
-                    await this.axios.delete(`url/${item.id}`, this.config)
+                if (respuesta){
+                    await axios.delete(`usuario/${item.id}`) //, this.config
+                    this.snack.mdl = true
+                    this.snack.color = "success"
+                    this.snack.msg = "Se elimino correctamente."
                 }
-                */
+                
             },
 
             close () {
@@ -226,31 +234,56 @@ import {mapState} from 'vuex';
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
                 })
+                this.resetValidation()
             },
 
-            save () { //PONER EL ASYNC
+            async save () { //PONER EL ASYNC
                 let valid_formulario = this.$refs.form.validate()
                 if (valid_formulario){
                     if (this.editedIndex > -1) {//EDITAR
-                        Object.assign(this.valor_username[this.editedIndex], this.editedItem)
+                        //Object.assign(this.valor_username[this.editedIndex], this.editedItem)
+                        
+                        try{
 
-                        /**
-                         * try{
-                         *  const entradaEditada = await this.axios.post(`url/${editedItem.id}`, this.editedItem, this.config)
-                         *  Object.assign(this.valor_username[this.editedIndex], this.editedItem) Si editamos correctamente, va a cambiar la vista
-                         * }catch(error){
-                         *  console.log(error)
-                         * }
-                         */
+                            const response = await axios.put(`usuario/${this.editedItem.id}`, this.editedItem) //, this.config
+                            Object.assign(this.valor_username[this.editedIndex], this.editedItem) //Si editamos correctamente, va a cambiar la vista
+
+                            this.snack.mdl = true
+                            this.snack.color = "success"
+                            this.snack.msg = `El usuario se editó exitosamente.`
+                        }catch(error){
+                            console.log(error)
+                        }
+                        
                     } else {//AGREGAR
+                        //El editItem tiene el nuevo valor y el valor editado ya que comparten la misma vista
+                        const new_usuario = {
+                            first_name: this.editedItem.first_name,
+                            last_name: this.editedItem.last_name,
+                            username: this.editedItem.username,
+                            password: this.editedItem.password,
+                            user_type: this.editedItem.user_type
+                        }
+                        console.log(new_usuario)
+                        try {
+                            const response = await axios.post('usuario', new_usuario)
+                            this.editedItem.first_name = response.data.first_name
+                            this.editedItem.last_name = response.data.last_name
+                            this.editedItem.username = response.data.username
+                            this.editedItem.user_type = response.data.user_type
+                            this.editedItem.password = response.data.password
+                            this.valor_username.push(this.editedItem)
+
+                            this.snack.mdl = true
+                            this.snack.color = "success"
+                            this.snack.msg = "El usuario se guardó exitosamente."
+                        } catch (error) {
+                            console.log(error)
+                        }
+                        
                         /** 
-                         * - El editItem tiene el nuevo valor y el valor editado ya que comparten la misma vista
-                         *  const new_usuario = {
-                         *      first_name: this.editItem.first_name
-                         *      last_name: this.editItem.last_name
-                         *      username: this.editItem.username
-                         *      user_type: this.editItem.user_type
-                         *  }
+                         * - 
+                         *  
                          * try{
                          *  const entradadb = await this.axios.post('url_post', new_usuario,this.config) el config solo si tenemos JWT
                          *  - Ahora la entradadb tiene el valor ya ingresado
@@ -265,7 +298,7 @@ import {mapState} from 'vuex';
                          * }
                          *  
                          */
-                        this.valor_username.push(this.editedItem)
+                        //this.valor_username.push(this.editedItem)
                     }
                     this.close()
                 }
