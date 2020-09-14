@@ -10,7 +10,7 @@ import '@mdi/font/css/materialdesignicons.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
-
+export const EventBus = new Vue();
 //URL BASE DE LA API
 axios.defaults.baseURL = 'http://127.0.0.1:5000/' 
 

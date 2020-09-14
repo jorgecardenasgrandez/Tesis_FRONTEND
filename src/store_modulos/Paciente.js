@@ -19,7 +19,7 @@ export default{
             ml:''
         },
         resultado:{
-            survival:true,
+            die:false,
             txt:"", //por defecto
             color: "success--text"
         }
@@ -41,7 +41,4 @@ export default{
             console.log(state.modelo.ml)
         }
     },
-    actions:{
-
-    }
 }

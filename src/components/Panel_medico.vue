@@ -61,28 +61,19 @@
             <v-btn icon>
                 <v-icon>mdi-apps</v-icon>
             </v-btn>
-        </v-app-bar>
-            
-        
-        <Prediccion></Prediccion>
-        
-        
+        </v-app-bar>            
     </v-container>
 </template>
 
 <script>
-    import {mapState} from 'vuex';
-    import Prediccion from '../../components/Prediccion.vue'
+    import {mapState} from 'vuex'
     export default {
+        name:'PanelMedico',
         data: () => ({
             dialog: false,
             drawer: null,
         
         }),
-
-        components:{
-            Prediccion
-        },
         computed:{
             ...mapState('simula',['simulacion'])
         }

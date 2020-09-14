@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import simula from '../store_modulos/Simulacion'
 import usuarios_main from '../store_modulos/Usuarios_test'
 import paciente_main from '../store_modulos/Paciente'
+import factores_main from '../store_modulos/Factores_riesgo'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -22,6 +23,6 @@ export default new Vuex.Store({
   },
 
   modules: {
-    simula, usuarios_main, paciente_main
+    simula, usuarios_main, paciente_main, factores_main
   }
 })

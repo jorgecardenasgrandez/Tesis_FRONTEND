@@ -1,5 +1,8 @@
 <template>
     <v-container>
+        
+        <PanelMedico></PanelMedico>
+
         <v-row>
             <v-col cols="12" md="6" sm="6">
                 <v-card>
@@ -14,7 +17,7 @@
                                             <template v-slot:activator="{ on }">
                                                 <span v-on="on">{{simulacion.titulo_card}}</span>
                                             </template>
-                                            <span>En cirugias pediatricas de cardiopatía congénita</span>
+                                            <span>En cirugias cardiacas congenitas pediatricas</span>
                                         </v-tooltip>
                                         
 
@@ -113,7 +116,7 @@
                                                         rounded
                                                         filled
                                                         label="Peso (kg)"
-                                                        hint="Max:30."
+                                                        hint="Max:5."
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -136,7 +139,7 @@
                                                     <v-select
                                                         v-model="paciente.antifibrinoliticos"
                                                         :rules="txtfieldRules"
-                                                        :items="['0', '1', '2']"
+                                                        :items="['No aplicar', 'Acido tranexamico', 'Aprotinina']"
                                                         rounded
                                                         filled
                                                         label="Antifibrinolíticos"
@@ -223,9 +226,10 @@
                                             <v-row>
                                                 <v-col cols="12">
                                                     <v-radio-group v-model="modelo.ml" :rules="txtfieldRules">
-                                                        <v-radio label="Bosque aleatorio" value="rf"></v-radio>
-                                                        <v-radio label="Arbol de decision" value="dt"></v-radio>
-                                                        <v-radio label="Redes bayesianas" value="rb"></v-radio>
+                                                        <v-radio label="Gradient Boosting Machine" value="gbm"></v-radio>
+                                                        <v-radio label="Random Forest" value="rf"></v-radio>
+                                                        <v-radio label="Decision Tree" value="dt"></v-radio>
+                                                        <v-radio label="Bayes" value="rb"></v-radio>
                                                     </v-radio-group>
                                                 </v-col>
                                             </v-row>
@@ -248,14 +252,30 @@
 
             
             <v-col cols="12" md="6" sm="6">
+                
+                <div v-if = "loaded">
+                    <FactoresRiesgo></FactoresRiesgo>
+                </div>
+                
+                
+                <!--<v-row v-if = !showRF>
+                </v-row>
+                <template>
+                    <div class="container">
+                        <factores-riesgo
+                        v-if="loaded"
+                        :chartdata="chartdata"
+                        :options="options"/>
+                    </div>
+                </template>-->
+                
                 <v-hover>
                     <template v-slot:default="{ hover }">
                         <v-card
                             class="mx-auto"
                             max-width="344"
                         >
-                            <v-img src="../assets/forest-art.jpg"></v-img>
-
+                            <!--<v-img src="../../assets/forest-art.jpg"></v-img>-->
                             <v-card-text>
                                 <h2 class="title">Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span></h2>
                                 <p>DNI      : {{auxiliar.dni}}</p>
@@ -275,7 +295,7 @@
                                 <p>Modelo     : {{auxiliar.model_choice}}</p>-->
                             </v-card-text>
 
-                            <v-fade-transition v-if="resultado.survival == false">
+                            <v-fade-transition v-if="resultado.die == true">
                                 <v-overlay
                                     v-if="hover"
                                     absolute
@@ -305,22 +325,54 @@
             </v-btn>
         </v-snackbar>
 
+        <v-dialog
+            v-model="loading.estado"
+            hide-overlay
+            persistent
+            width="300"
+            >
+            <v-card
+                color="primary"
+                dark
+            >
+                <v-card-text>
+                Estimando la mortalidad ...
+                <v-progress-linear
+                    indeterminate
+                    color="white"
+                    class="mb-0"
+                ></v-progress-linear>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        
+
     </v-container>
 </template>
 
 <script>
 import {mapState, mapMutations} from 'vuex';
 import axios from 'axios';
+import PanelMedico from '../../components/Panel_medico.vue'
+import FactoresRiesgo from '../../components/Factores_comp.vue' //es sin el .vue
+import {EventBus} from '../../main.js'
 
     export default {
-        name:'Prediccion',
         data(){
             return{
+                loaded: false,
+
                 snack:{
                     vm:false,
                     color:'',
                     msg:''
                 },
+
+                loading:{
+                    titulo:'',
+                    estado:false
+                },
+
                 auxiliar:{
                     dni:'',
                     nombre:'',
@@ -350,7 +402,7 @@ import axios from 'axios';
                 ],
                 pesoRules:[
                     v => !!v || 'El peso es requerido.',
-                    v => v >= 1 && v <= 30 || 'Excedido.',
+                    v => v >= 1 && v <= 5 || 'Excedido.',
                 ],
                 cpbminRules:[
                     v => !!v || 'El CPB es requerido.',
@@ -370,6 +422,12 @@ import axios from 'axios';
                 ],
             }
         },
+
+        components:{
+            PanelMedico,
+            FactoresRiesgo
+        },
+
         computed:{
             ...mapState('simula',['simulacion']),
             ...mapState('paciente_main',['paciente', 'modelo', 'resultado'])
@@ -378,15 +436,16 @@ import axios from 'axios';
         methods:{
             ...mapMutations('simula',['cambiar_a_simulacion', 'normalidad']),
             ...mapMutations('paciente_main',['mostrar']),
-
+            
             async prediccion(){
                 let valid = this.$refs.form.validate()
                 if (this.validarCampos() && valid){
                     let sexo = this.paciente.sexo
                     let parto = this.paciente.parto_prematuro
                     let bombeo = this.paciente.bombeo
+                    let antifi = this.paciente.antifibrinoliticos
 
-                    if(sexo === "Masculino"){
+                    if(sexo === "Femenino"){
                         sexo = "1"
                     }else{
                         sexo = "0"
@@ -404,6 +463,14 @@ import axios from 'axios';
                         bombeo = "0"
                     }
 
+                    if(antifi === "Aprotinina"){
+                        antifi = "2"
+                    }else if(antifi === "Acido tranexamico"){
+                        antifi = "1"
+                    }else{
+                        antifi = "0"
+                    }
+
                     let paciente = {
                         dni:this.paciente.dni,
                         nombre:this.paciente.nombre,
@@ -412,7 +479,7 @@ import axios from 'axios';
                         weight:this.paciente.peso,
                         prematurity:parto,
                         cpb_min:this.paciente.cpb_min,
-                        antifibrinolytics:this.paciente.antifibrinoliticos,
+                        antifibrinolytics:antifi,
                         pumpnonpump:bombeo,
                         dhca_min:this.paciente.dhca_min,
                         aox_time:this.paciente.aox_time,
@@ -422,12 +489,57 @@ import axios from 'axios';
                     }
                     //console.log(paciente)
                     try {
+
+                        this.loading.estado = true
+
                         const response = await axios.post('predict', paciente)
-                        console.log(response.data)
+                        //console.log(response.data)
+
+                        this.loading.estado = false
 
                         this.auxiliar.dni=response.data.DNI
                         this.auxiliar.nombre=response.data.Nombre
-                        /*this.auxiliar.age_at_surgery=response.data.Feat[0]
+                        
+                        const factores_riesgo = {
+                            "fr0":response.data.Risk_Factors[0][0],
+                            "val0":response.data.Risk_Factors[0][1],
+                            "fr1":response.data.Risk_Factors[1][0],
+                            "val1":response.data.Risk_Factors[1][1],
+                            "fr2":response.data.Risk_Factors[2][0],
+                            "val2":response.data.Risk_Factors[2][1],
+                            "fr3":response.data.Risk_Factors[3][0],
+                            "val3":response.data.Risk_Factors[3][1],
+                            "fr4":response.data.Risk_Factors[4][0],
+                            "val4":response.data.Risk_Factors[4][1],
+                            "fr5":response.data.Risk_Factors[5][0],
+                            "val5":response.data.Risk_Factors[5][1],
+                            "fr6":response.data.Risk_Factors[6][0],
+                            "val6":response.data.Risk_Factors[6][1],
+                            "fr7":response.data.Risk_Factors[7][0],
+                            "val7":response.data.Risk_Factors[7][1],
+                            "fr8":response.data.Risk_Factors[8][0],
+                            "val8":response.data.Risk_Factors[8][1],
+                            "fr9":response.data.Risk_Factors[9][0],
+                            "val9":response.data.Risk_Factors[9][1],
+                        }
+
+                        this.$store.dispatch('factores_main/recibirFactoresRiesgo',factores_riesgo)
+                        EventBus.$emit('reenvio_data', true);
+                        this.loaded = true
+
+                        /*console.log(this.factores_riesgo.fr1[0],this.factores_riesgo.fr1[1])
+                        console.log(this.factores_riesgo.fr2[0],this.factores_riesgo.fr2[1])
+                        console.log(this.factores_riesgo.fr3[0],this.factores_riesgo.fr3[1])
+                        console.log(this.factores_riesgo.fr4[0],this.factores_riesgo.fr4[1])
+                        console.log(this.factores_riesgo.fr5[0],this.factores_riesgo.fr5[1])
+                        console.log(this.factores_riesgo.fr6[0],this.factores_riesgo.fr6[1])
+                        console.log(this.factores_riesgo.fr7[0],this.factores_riesgo.fr7[1])
+                        console.log(this.factores_riesgo.fr8[0],this.factores_riesgo.fr8[1])
+                        console.log(this.factores_riesgo.fr9[0],this.factores_riesgo.fr9[1])
+                        console.log(this.factores_riesgo.fr10[0],this.factores_riesgo.fr10[1])
+
+                        
+                        this.auxiliar.age_at_surgery=response.data.Feat[0]
                         this.auxiliar.gender=response.data.Feat[1]
                         this.auxiliar.weight=response.data.Feat[2]
                         this.auxiliar.prematurity=response.data.Feat[3]
@@ -439,24 +551,24 @@ import axios from 'axios';
                         this.auxiliar.pre_opcr=response.data.Feat[9]
                         this.auxiliar.model_choice=response.data.Model*/
 
-                        this.resultado.survival = response.data.Prediction
-                        if (this.resultado.survival=="1"){ //SUPERVIVENCIA
+                        this.resultado.die = response.data.Prediction
+                        if (this.resultado.die=="1"){ //MUERTE
+
+                            this.simulacion.valid = false
+                            this.resultado.txt = "Mortalidad"
+                            this.resultado.color = "red--text"
+
+                        }else{ // SUPERVIVENCIA
                             this.reset()
                             this.resultado.txt = "Supervivencia"
                             this.resultado.color = "green--text"
 
                             this.normalidad()
-                        }else{ // MUERTE
-                            this.simulacion.valid = false
-                            this.resultado.txt = "Mortalidad"
-                            this.resultado.color = "red--text"
                         }
                     } catch (error) {
                         console.log(error)
                     }
-                    
-                    //this.reset()
-                    
+                    //this.reset()*/
                 }else{
                     this.snack.vm = true
                     this.snack.color = "red"

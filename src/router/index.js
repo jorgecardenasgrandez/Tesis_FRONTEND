@@ -19,7 +19,7 @@ Vue.use(VueRouter)
   {
     path: '/medico',
     name: 'medico',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/Panel_medico.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/Prediccion.vue')
   },
   {
     path:'/admin',
