@@ -9,7 +9,7 @@ export default{
                 // ['aaa','eee','iii','ooo','uuu','rrr','ttt','qqq','vvv','ggg']
             labels: ['','','','','','','','','',''],
             datasets: [{
-                label: 'Bar Chart',
+                label: '',
                 borderWidth: 1,
                 backgroundColor: ['','','','','','','','','',''],
                 borderColor: ['','','','','','','','','',''],

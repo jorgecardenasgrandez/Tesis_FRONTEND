@@ -90,7 +90,7 @@
                                                         @keypress="isNumber($event)" 
                                                         filled
                                                         label="Edad"
-                                                        hint="Min:1/Max:31."
+                                                        hint="Dias de Nacimiento"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -116,7 +116,7 @@
                                                         rounded
                                                         filled
                                                         label="Peso (kg)"
-                                                        hint="Max:5."
+                                                        hint=""
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -131,7 +131,7 @@
                                                         :items="['Si', 'No']"
                                                         rounded
                                                         filled
-                                                        label="Parto prematuro"
+                                                        label="Prematuridad"
                                                         required
                                                     ></v-select>
                                                 </v-col>
@@ -156,8 +156,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="CPB Minimo"
-                                                        hint="El minimo es 24."
+                                                        label="Bypass Cardiopulmonar"
+                                                        hint="Minutos"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -169,7 +169,7 @@
                                                         :items="['Si', 'No']"
                                                         rounded
                                                         filled
-                                                        label="Bombeo"
+                                                        label="Bombeo cardiaco"
                                                         required
                                                     ></v-select>
                                                 </v-col>
@@ -183,8 +183,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="DHCA Minimo"
-                                                        hint="El minimo es 0."
+                                                        label="Paro circulatorio"
+                                                        hint="Minutos"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -196,8 +196,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="AOX Time"
-                                                        hint="El minimo es 0."
+                                                        label="Pinzamiento aortico"
+                                                        hint="Minutos"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -208,8 +208,8 @@
                                                         :rules="preopcrRules"
                                                         rounded
                                                         filled
-                                                        label="Pre_OPCR"
-                                                        hint="Min:0/Max:1.3."
+                                                        label="Creatinina preoperatoria"
+                                                        hint=""
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -398,27 +398,27 @@ import {EventBus} from '../../main.js'
                 ],
                 edadRules:[
                     v => !!v || 'La edad es requerida.',
-                    v => v >= 1 && v <= 31 || 'Min:1/Max:31.',
+                    v => v >= 0 || 'Edad minima es 0 dias.',
                 ],
                 pesoRules:[
                     v => !!v || 'El peso es requerido.',
-                    v => v >= 1 && v <= 5 || 'Excedido.',
+                    v => v >= 0 || 'Peso minimo es 0 kg.',
                 ],
                 cpbminRules:[
                     v => !!v || 'El CPB es requerido.',
-                    v => v >= 24 || 'El minimo es 24.',
+                    v => v >= 0 || 'Tiempo minimo es 0 minutos.',
                 ],
                 dhcaRules:[
                     v => !!v || 'El DHCA es requerido.',
-                    v => v >= 0 || 'El minimo es 0.',
+                    v => v >= 0 || 'Tiempo minimo es 0 minutos.',
                 ],
                 aoxtimeRules:[
                     v => !!v || 'El AOX es requerido.',
-                    v => v >= 0 || 'El minimo es 0.',
+                    v => v >= 0 || 'Tiempo minimo es 0 minutos.',
                 ],
                 preopcrRules:[
-                    v => !!v || 'El OPCR es requerido.',
-                    v => v >= 0 && v <= 1.3 || 'Min:0/Max:1.3.',
+                    v => !!v || 'Creatinina Pre es requerido.',
+                    v => v >= 0 || 'Medida minima es 0.',
                 ],
             }
         },
@@ -446,34 +446,36 @@ import {EventBus} from '../../main.js'
                     let antifi = this.paciente.antifibrinoliticos
 
                     if(sexo === "Femenino"){
-                        sexo = "1"
+                        sexo = true
                     }else{
-                        sexo = "0"
+                        sexo = false
                     }
 
                     if(parto === "Si"){
-                        parto = "1"
+                        parto = true
                     }else{
-                        parto = "0"
+                        parto = false
                     }
 
                     if(bombeo === "Si"){
-                        bombeo = "1"
+                        bombeo = true
                     }else{
-                        bombeo = "0"
+                        bombeo = false
                     }
 
                     if(antifi === "Aprotinina"){
-                        antifi = "2"
+                        antifi = 2
                     }else if(antifi === "Acido tranexamico"){
-                        antifi = "1"
+                        antifi = 1
                     }else{
-                        antifi = "0"
+                        antifi = 0
                     }
 
-                    let paciente = {
-                        dni:this.paciente.dni,
-                        nombre:this.paciente.nombre,
+                    let paciente_pediatrico = {
+                        paciente:{
+                            dni:this.paciente.dni,
+                            nombre:this.paciente.nombre,
+                        },
                         age_at_surgery:this.paciente.edad,
                         gender:sexo,
                         weight:this.paciente.peso,
@@ -487,13 +489,13 @@ import {EventBus} from '../../main.js'
                         model_choice:this.modelo.ml,
                         simulate:this.simulacion.simulate
                     }
-                    //console.log(paciente)
+                    // console.log(paciente_pediatrico)
                     try {
 
                         this.loading.estado = true
 
-                        const response = await axios.post('predict', paciente)
-                        //console.log(response.data)
+                        const response = await axios.post('api/prediction/register/', paciente_pediatrico)
+                        // console.log(response.data)
 
                         this.loading.estado = false
 
