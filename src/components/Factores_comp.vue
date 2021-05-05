@@ -13,8 +13,6 @@
                 this.renderChart(this.datacollection, this.options)
             });
             
-            console.log(this.factores_main)
-            
             this.renderChart(this.datacollection, this.options)
         },
 

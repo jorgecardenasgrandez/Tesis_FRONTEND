@@ -219,23 +219,6 @@
                                     </v-expansion-panel>
                                 </v-col>
 
-                                <v-col cols="12">
-                                    <v-expansion-panel>
-                                        <v-expansion-panel-header>Modelo de aprendizaje automatico</v-expansion-panel-header>
-                                        <v-expansion-panel-content>
-                                            <v-row>
-                                                <v-col cols="12">
-                                                    <v-radio-group v-model="modelo.ml" :rules="txtfieldRules">
-                                                        <v-radio label="Gradient Boosting Machine" value="gbm"></v-radio>
-                                                        <v-radio label="Random Forest" value="rf"></v-radio>
-                                                        <v-radio label="Decision Tree" value="dt"></v-radio>
-                                                        <v-radio label="Bayes" value="rb"></v-radio>
-                                                    </v-radio-group>
-                                                </v-col>
-                                            </v-row>
-                                        </v-expansion-panel-content>
-                                    </v-expansion-panel>
-                                </v-col>
                             </v-expansion-panels>
                         </v-card-text>
 
@@ -250,14 +233,9 @@
                 </v-card>
             </v-col>
 
-            
             <v-col cols="12" md="6" sm="6">
                 
-                <div v-if = "loaded">
-                    <FactoresRiesgo></FactoresRiesgo>
-                </div>
-                
-                
+                <div v-if = "loaded"> <FactoresRiesgo></FactoresRiesgo> </div>    
                 <!--<v-row v-if = !showRF>
                 </v-row>
                 <template>
@@ -267,7 +245,14 @@
                         :chartdata="chartdata"
                         :options="options"/>
                     </div>
-                </template>-->
+                </template> 344 -->
+                
+                <v-card class="mx-auto" max-width="344">
+                    <v-card-title>
+                        <span class="green--text">Impacto total supervivencia: {{ calcularPositivo }}% </span> 
+                        <span class="red--text">Impacto total mortalidad: {{ calcularNegativo }}% </span>
+                    </v-card-title>
+                </v-card>
                 
                 <v-hover>
                     <template v-slot:default="{ hover }">
@@ -275,12 +260,20 @@
                             class="mx-auto"
                             max-width="344"
                         >
-                            <!--<v-img src="../../assets/forest-art.jpg"></v-img>-->
-                            <v-card-text>
-                                <h2 class="title">Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span></h2>
+                            <v-card-title>
+                                Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span>
+                            </v-card-title>
+
+                            <v-card-subtitle>
                                 <p>DNI      : {{auxiliar.dni}}</p>
                                 <p>Nombre   : {{auxiliar.nombre}}</p>
-                                <!--<v-divider></v-divider>
+                            </v-card-subtitle>
+                            <!-- COMENTARIO
+                            <v-card-text>
+                                <h2 class="title"> Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span> </h2>
+                                <p>DNI      : {{auxiliar.dni}}</p>
+                                <p>Nombre   : {{auxiliar.nombre}}</p>
+                                <v-divider></v-divider>
                                 <p>Edad     : {{auxiliar.age_at_surgery}}</p>
                                 <p>Sexo     : {{auxiliar.gender}}</p>
                                 <p>Peso     : {{auxiliar.weight}}</p>
@@ -292,9 +285,9 @@
                                 <p>AOX_time     : {{auxiliar.aox_time}}</p>
                                 <p>Pre_opcr     : {{auxiliar.pre_opcr}}</p>
                                 <v-divider></v-divider>
-                                <p>Modelo     : {{auxiliar.model_choice}}</p>-->
+                                <p>Modelo     : {{auxiliar.model_choice}}</p>
                             </v-card-text>
-
+                            -->
                             <v-fade-transition v-if="resultado.die == true">
                                 <v-overlay
                                     v-if="hover"
@@ -307,6 +300,16 @@
                         </v-card>
                     </template>
                 </v-hover>
+
+                <!-- :color="simulacion.boton_color"  type="submit" white--text  class="mb-2"   -->
+                <v-card class="mx-auto" max-width="344" v-if="simulacion.simulate">
+                    <v-card-actions>
+                        <v-btn block text class="mx-auto" color="primary" @click="terminarSimulacion">
+                            <v-icon left>mdi-chart-arc</v-icon>
+                            Terminar simulación
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
             </v-col>
 
         </v-row>
@@ -360,6 +363,9 @@ import {EventBus} from '../../main.js'
     export default {
         data(){
             return{
+                impacto_positivo: 0,
+                impacto_negativo: 0,
+
                 loaded: false,
 
                 snack:{
@@ -385,8 +391,7 @@ import {EventBus} from '../../main.js'
                     pumpnonpump:'',
                     dhca_min:'',
                     aox_time:'',
-                    pre_opcr:'',
-                    model_choice:''
+                    pre_opcr:''
                 },
 
                 txtfieldRules:[
@@ -430,7 +435,13 @@ import {EventBus} from '../../main.js'
 
         computed:{
             ...mapState('simula',['simulacion']),
-            ...mapState('paciente_main',['paciente', 'modelo', 'resultado'])
+            ...mapState('paciente_main', ['paciente', 'resultado']),
+            calcularPositivo(){
+                return this.impacto_positivo
+            },
+            calcularNegativo(){
+                return this.impacto_negativo
+            }
         },
 
         methods:{
@@ -486,7 +497,6 @@ import {EventBus} from '../../main.js'
                         dhca_min:this.paciente.dhca_min,
                         aox_time:this.paciente.aox_time,
                         pre_opcr:this.paciente.pre_opcr,
-                        model_choice:this.modelo.ml,
                         simulate:this.simulacion.simulate
                     }
                     // console.log(paciente_pediatrico)
@@ -524,11 +534,10 @@ import {EventBus} from '../../main.js'
                             "fr9":response.data.Risk_Factors[9][0],
                             "val9":response.data.Risk_Factors[9][1],
                         }
-
+                        // console.log(factores_riesgo)
                         this.$store.dispatch('factores_main/recibirFactoresRiesgo',factores_riesgo)
                         EventBus.$emit('reenvio_data', true);
                         this.loaded = true
-
                         /*console.log(this.factores_riesgo.fr1[0],this.factores_riesgo.fr1[1])
                         console.log(this.factores_riesgo.fr2[0],this.factores_riesgo.fr2[1])
                         console.log(this.factores_riesgo.fr3[0],this.factores_riesgo.fr3[1])
@@ -539,8 +548,6 @@ import {EventBus} from '../../main.js'
                         console.log(this.factores_riesgo.fr8[0],this.factores_riesgo.fr8[1])
                         console.log(this.factores_riesgo.fr9[0],this.factores_riesgo.fr9[1])
                         console.log(this.factores_riesgo.fr10[0],this.factores_riesgo.fr10[1])
-
-                        
                         this.auxiliar.age_at_surgery=response.data.Feat[0]
                         this.auxiliar.gender=response.data.Feat[1]
                         this.auxiliar.weight=response.data.Feat[2]
@@ -552,37 +559,62 @@ import {EventBus} from '../../main.js'
                         this.auxiliar.aox_time=response.data.Feat[8]
                         this.auxiliar.pre_opcr=response.data.Feat[9]
                         this.auxiliar.model_choice=response.data.Model*/
+                        let positivo = 0
+                        let negativo = 0
+                        let i = 0
+                        while(i < 10){
+                            let valor_peso = factores_riesgo["val"+i]
+                            // console.log("peso", valor_peso)
+                            if (valor_peso < 0){  // Impacto positivo
+                                positivo = positivo + Math.abs(valor_peso)
+                                console.log("positivo", positivo)
+                            }else{
+                                negativo = negativo + valor_peso
+                                console.log("negativo", negativo)
+                            }
+                            i = i + 1
+                        }
+                        // console.log(positivo, negativo)
+                        this.impacto_positivo = 100*(positivo).toFixed(2) 
+                        this.impacto_negativo = 100*(negativo).toFixed(2)
+                        // console.log(this.impacto_positivo, this.impacto_negativo) 
+                        
 
-                        this.resultado.die = response.data.Prediction
-                        if (this.resultado.die=="1"){ //MUERTE
+                        this.resultado.probabilidad = response.data.Prediction
+                        const valor_probabilidad = 100*(1 - this.resultado.probabilidad).toFixed(2)  // GENERAR LA PROBABILIDAD
+                        this.resultado.txt = `Supervivencia ${valor_probabilidad} %`
 
+                        if (this.resultado.probabilidad > 0.2){ //MORTALIDAD
+                            this.resultado.die = true
                             this.simulacion.valid = false
-                            this.resultado.txt = "Mortalidad"
                             this.resultado.color = "red--text"
-
                         }else{ // SUPERVIVENCIA
-                            this.reset()
-                            this.resultado.txt = "Supervivencia"
+                            // this.reset()
                             this.resultado.color = "green--text"
-
-                            this.normalidad()
+                            // this.resultado.die = false
+                            // this.normalidad()  // el simulacion.simulate
                         }
                     } catch (error) {
                         console.log(error)
                     }
-                    //this.reset()*/
+                    
                 }else{
                     this.snack.vm = true
                     this.snack.color = "red"
                     this.snack.msg = "Debe ingresar todos los campos."
                 }
             },
-            
+
+            terminarSimulacion(){
+                this.reset()
+                this.resultado.die = false
+                this.normalidad()
+            },
             validarCampos(){
                 if(this.paciente.dni.length > 0 && this.paciente.nombre.length > 0 && this.paciente.edad.length > 0 &&
                     this.paciente.sexo.length > 0 && this.paciente.peso.length > 0 && this.paciente.parto_prematuro.length > 0 && this.paciente.cpb_min.length > 0 &&
                     this.paciente.antifibrinoliticos.length > 0 && this.paciente.bombeo.length > 0 && this.paciente.dhca_min.length > 0 && 
-                    this.paciente.aox_time.length > 0 && this.paciente.pre_opcr.length > 0 && this.modelo.ml.length > 0){
+                    this.paciente.aox_time.length > 0 && this.paciente.pre_opcr.length > 0){
                         return true
                 }else{
                     return false

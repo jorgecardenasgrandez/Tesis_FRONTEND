@@ -15,11 +15,9 @@ export default{
             aox_time:'',
             pre_opcr:'',
         },
-        modelo:{
-            ml:''
-        },
         resultado:{
             die:false,
+            probabilidad: 0,
             txt:"", //por defecto
             color: "success--text"
         }
@@ -38,7 +36,6 @@ export default{
             console.log(state.paciente.dhca_min)
             console.log(state.paciente.aox_time)
             console.log(state.paciente.pre_opcr)
-            console.log(state.modelo.ml)
         }
     },
 }

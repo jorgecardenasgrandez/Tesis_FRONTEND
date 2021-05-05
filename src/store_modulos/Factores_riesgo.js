@@ -6,7 +6,6 @@ export default{
                 // 'rgba(255, 99, 132, 0.2)', - rojo back
                 // 'rgba(75, 192, 192, 1)', - verde borde
                 // 'rgba(255,99,132,1)', rojo borde
-                // ['aaa','eee','iii','ooo','uuu','rrr','ttt','qqq','vvv','ggg']
             labels: ['','','','','','','','','',''],
             datasets: [{
                 label: '',
@@ -76,8 +75,6 @@ export default{
             //console.log(state.datacollection.datasets[0].backgroundColor[0])
             //console.log(state.datacollection.datasets[0].borderColor[0])
             //console.log(state.datacollection.datasets[0].data[0])*/
-
-                
             if (fr.val0 < 0){
                 state.datacollection.labels[0] = fr.fr0 
                 state.datacollection.datasets[0].backgroundColor[0] = 'rgba(75, 192, 192, 0.2)'
@@ -184,42 +181,6 @@ export default{
     actions:{
         recibirFactoresRiesgo(context, factores_de_riesgo){
             context.commit('mostrar', factores_de_riesgo)
-            //console.log(factores_de_riesgo)
         }
     }
 }
-
-/*datacollection: {
-            labels: [],
-            datasets: [{
-                label: 'Bar Chart',
-                borderWidth: 1,
-                
-                backgroundColor: [],
-                borderColor: [],
-                pointBorderColor: '#2554FF',
-                data: []
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                        display: true
-                    }
-                }],
-                xAxes: [ {
-                gridLines: {
-                    display: false
-                }
-                }]
-            },
-            legend: {
-                display: true
-            },
-            responsive: true,
-            maintainAspectRatio: false
-        }*/
