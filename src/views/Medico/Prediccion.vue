@@ -567,7 +567,7 @@ import {EventBus} from '../../main.js'
                             // console.log("peso", valor_peso)
                             if (valor_peso < 0){  // Impacto positivo
                                 positivo = positivo + Math.abs(valor_peso)
-                                console.log("positivo", positivo)
+                                // console.log("positivo", positivo)
                             }else{
                                 negativo = negativo + valor_peso
                                 console.log("negativo", negativo)
