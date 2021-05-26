@@ -268,26 +268,7 @@
                                 <p>DNI      : {{auxiliar.dni}}</p>
                                 <p>Nombre   : {{auxiliar.nombre}}</p>
                             </v-card-subtitle>
-                            <!-- COMENTARIO
-                            <v-card-text>
-                                <h2 class="title"> Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span> </h2>
-                                <p>DNI      : {{auxiliar.dni}}</p>
-                                <p>Nombre   : {{auxiliar.nombre}}</p>
-                                <v-divider></v-divider>
-                                <p>Edad     : {{auxiliar.age_at_surgery}}</p>
-                                <p>Sexo     : {{auxiliar.gender}}</p>
-                                <p>Peso     : {{auxiliar.weight}}</p>
-                                <p>Prematuridad     : {{auxiliar.prematurity}}</p>
-                                <p>CPB_Min     : {{auxiliar.cpb_min}}</p>
-                                <p>Antifibrinolytics     : {{auxiliar.antifibrinolytics}}</p>
-                                <p>Bombeo     : {{auxiliar.pumpnonpump}}</p>
-                                <p>DHCA_Min     : {{auxiliar.dhca_min}}</p>
-                                <p>AOX_time     : {{auxiliar.aox_time}}</p>
-                                <p>Pre_opcr     : {{auxiliar.pre_opcr}}</p>
-                                <v-divider></v-divider>
-                                <p>Modelo     : {{auxiliar.model_choice}}</p>
-                            </v-card-text>
-                            -->
+                            
                             <v-fade-transition v-if="resultado.die == true">
                                 <v-overlay
                                     v-if="hover"
@@ -506,7 +487,6 @@ import {EventBus} from '../../main.js'
 
                         const response = await axios.post('api/prediction/register/', paciente_pediatrico)
                         // console.log(response.data)
-
                         this.loading.estado = false
 
                         this.auxiliar.dni=response.data.DNI
@@ -534,31 +514,11 @@ import {EventBus} from '../../main.js'
                             "fr9":response.data.Risk_Factors[9][0],
                             "val9":response.data.Risk_Factors[9][1],
                         }
-                        // console.log(factores_riesgo)
+                        
                         this.$store.dispatch('factores_main/recibirFactoresRiesgo',factores_riesgo)
                         EventBus.$emit('reenvio_data', true);
                         this.loaded = true
-                        /*console.log(this.factores_riesgo.fr1[0],this.factores_riesgo.fr1[1])
-                        console.log(this.factores_riesgo.fr2[0],this.factores_riesgo.fr2[1])
-                        console.log(this.factores_riesgo.fr3[0],this.factores_riesgo.fr3[1])
-                        console.log(this.factores_riesgo.fr4[0],this.factores_riesgo.fr4[1])
-                        console.log(this.factores_riesgo.fr5[0],this.factores_riesgo.fr5[1])
-                        console.log(this.factores_riesgo.fr6[0],this.factores_riesgo.fr6[1])
-                        console.log(this.factores_riesgo.fr7[0],this.factores_riesgo.fr7[1])
-                        console.log(this.factores_riesgo.fr8[0],this.factores_riesgo.fr8[1])
-                        console.log(this.factores_riesgo.fr9[0],this.factores_riesgo.fr9[1])
-                        console.log(this.factores_riesgo.fr10[0],this.factores_riesgo.fr10[1])
-                        this.auxiliar.age_at_surgery=response.data.Feat[0]
-                        this.auxiliar.gender=response.data.Feat[1]
-                        this.auxiliar.weight=response.data.Feat[2]
-                        this.auxiliar.prematurity=response.data.Feat[3]
-                        this.auxiliar.cpb_min=response.data.Feat[4]
-                        this.auxiliar.antifibrinolytics=response.data.Feat[5]
-                        this.auxiliar.pumpnonpump=response.data.Feat[6]
-                        this.auxiliar.dhca_min=response.data.Feat[7]
-                        this.auxiliar.aox_time=response.data.Feat[8]
-                        this.auxiliar.pre_opcr=response.data.Feat[9]
-                        this.auxiliar.model_choice=response.data.Model*/
+                        
                         let positivo = 0
                         let negativo = 0
                         let i = 0

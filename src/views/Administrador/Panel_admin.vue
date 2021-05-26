@@ -15,7 +15,7 @@
 
                             <v-list-item-content>
                                 <v-list-item-title>Jorge Cardenas</v-list-item-title>
-                                <v-list-item-subtitle>Médico</v-list-item-subtitle>
+                                <v-list-item-subtitle>Admnistrador</v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
                         </v-list>

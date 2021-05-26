@@ -74,7 +74,7 @@
                 </v-toolbar>
             </template>
 
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
                     small
                     color="blue darken-4"
@@ -280,25 +280,6 @@ import axios from 'axios';
                         } catch (error) {
                             console.log(error)
                         }
-                        
-                        /** 
-                         * - 
-                         *  
-                         * try{
-                         *  const entradadb = await this.axios.post('url_post', new_usuario,this.config) el config solo si tenemos JWT
-                         *  - Ahora la entradadb tiene el valor ya ingresado
-                         *  this.editedItem.first_name = entradadb.data.first_name
-                         *  this.editedItem.last_name = entradadb.data.last_name
-                         *  this.editedItem.username = entradadb.data.username
-                         *  this.editedItem.user_type = entradadb.data.user_type
-                         *  this.editedItem.password = entradadb.data.password
-                         *  this.valor_username.push(this.editedItem)
-                         * }catch(){
-                         *  console.log(error)
-                         * }
-                         *  
-                         */
-                        //this.valor_username.push(this.editedItem)
                     }
                     this.close()
                 }
