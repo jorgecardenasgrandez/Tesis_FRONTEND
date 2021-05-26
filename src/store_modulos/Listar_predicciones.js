@@ -156,42 +156,54 @@ export default{
     },
     actions:{
         async consultarPacientes({commit}){
-            const response = await axios.get('api/paciente/list/')
-            commit('listar_pacientes', response.data)
+            try{
+                const response = await axios.get('api/paciente/list/')
+                commit('listar_pacientes', response.data)
+            }catch(error){
+                console.log(error)
+            }
         },
         
         async consultarPredicciones({commit}, id){  // Realizar el filtro d nuestra lista de pacientes
-            const response = await axios.get(`api/prediction/list/${id}/`)
-            commit('listar_predicciones', response.data)
+            try{
+                const response = await axios.get(`api/prediction/list/${id}/`)
+                commit('listar_predicciones', response.data)
+            }catch(error){
+                console.log(error)
+            }
         },
 
         async mostrarExplicacion({commit}, id){
             const fr = {}
-            const response = await axios.get(`api/explainability/detail/${id}/`)
+            try{
+                const response = await axios.get(`api/explainability/detail/${id}/`)
             
-            fr["fr0"] = response.data.aox_time.split("|")[0]
-            fr["val0"] = response.data.aox_time.split("|")[1]
-            fr["fr1"] = response.data.cpb_min.split("|")[0]
-            fr["val1"] = response.data.cpb_min.split("|")[1]
-            fr["fr2"] = response.data.dhca_min.split("|")[0]
-            fr["val2"] = response.data.dhca_min.split("|")[1]
-            fr["fr3"] = response.data.pumpnonpump.split("|")[0]
-            fr["val3"] = response.data.pumpnonpump.split("|")[1]
-            fr["fr4"] = response.data.antifibrinolytics.split("|")[0]
-            fr["val4"] = response.data.antifibrinolytics.split("|")[1]
-            fr["fr5"] = response.data.pre_opcr.split("|")[0]
-            fr["val5"] = response.data.pre_opcr.split("|")[1]
-            fr["fr6"] = response.data.age_at_surgery.split("|")[0]
-            fr["val6"] = response.data.age_at_surgery.split("|")[1]
-            fr["fr7"] = response.data.weight.split("|")[0]
-            fr["val7"] = response.data.weight.split("|")[1]
-            fr["fr8"] = response.data.gender.split("|")[0]
-            fr["val8"] = response.data.gender.split("|")[1]
-            fr["fr9"] = response.data.prematurity.split("|")[0]
-            fr["val9"] = response.data.prematurity.split("|")[1]
+                fr["fr0"] = response.data.aox_time.split("|")[0]
+                fr["val0"] = response.data.aox_time.split("|")[1]
+                fr["fr1"] = response.data.cpb_min.split("|")[0]
+                fr["val1"] = response.data.cpb_min.split("|")[1]
+                fr["fr2"] = response.data.dhca_min.split("|")[0]
+                fr["val2"] = response.data.dhca_min.split("|")[1]
+                fr["fr3"] = response.data.pumpnonpump.split("|")[0]
+                fr["val3"] = response.data.pumpnonpump.split("|")[1]
+                fr["fr4"] = response.data.antifibrinolytics.split("|")[0]
+                fr["val4"] = response.data.antifibrinolytics.split("|")[1]
+                fr["fr5"] = response.data.pre_opcr.split("|")[0]
+                fr["val5"] = response.data.pre_opcr.split("|")[1]
+                fr["fr6"] = response.data.age_at_surgery.split("|")[0]
+                fr["val6"] = response.data.age_at_surgery.split("|")[1]
+                fr["fr7"] = response.data.weight.split("|")[0]
+                fr["val7"] = response.data.weight.split("|")[1]
+                fr["fr8"] = response.data.gender.split("|")[0]
+                fr["val8"] = response.data.gender.split("|")[1]
+                fr["fr9"] = response.data.prematurity.split("|")[0]
+                fr["val9"] = response.data.prematurity.split("|")[1]
 
-            commit('listar_explicacion', fr)
-            EventBus.$emit('reenviar_data', true);
+                commit('listar_explicacion', fr)
+                EventBus.$emit('reenviar_data', true);
+            }catch(error){
+                console.log(error)
+            }
         }
     },
 }
