@@ -12,7 +12,7 @@ import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 export const EventBus = new Vue();
 //URL BASE DE LA API
-axios.defaults.baseURL = 'http://127.0.0.1:8000/'   // http://127.0.0.1:8000/
+axios.defaults.baseURL = 'https://drf-tesis.herokuapp.com/'   // http://127.0.0.1:8000/
 
 Vue.config.productionTip = false
 
