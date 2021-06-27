@@ -27,7 +27,7 @@
                             @submit.prevent="login"
                         >
                             <v-text-field
-                            v-model="sesion.username"
+                            v-model="username"
                             :rules="usuarioRules"
                             label="Usuario"
                             prepend-icon="mdi-account"
@@ -35,7 +35,7 @@
                             ></v-text-field>
 
                             <v-text-field
-                            v-model="sesion.contrasena"
+                            v-model="contrasena"
                             :append-icon="show_eye ? 'mdi-eye' : 'mdi-eye-off'"
                             :rules="passRules"
                             :type="show_eye ? 'text' : 'password'"
@@ -63,6 +63,7 @@
         <v-snackbar
             v-model="snack.model_snack"
             color = "error"
+            :timeout="timeout_snack"
         >
             {{ snack.msg }}
             <v-btn
@@ -78,13 +79,18 @@
 </template>
 
 <script>
-import {mapMutations, mapState} from 'vuex';
+import {mapActions, mapState} from 'vuex';
 
     export default {
         data(){
             return{
                 valid:true,
                 show_eye:false,
+                timeout_snack: 0,
+
+                username: '',
+                contrasena: '',
+
                 usuarioRules: [
                     v => !!v || 'El usuario es requerido.'
                 ],
@@ -99,15 +105,12 @@ import {mapMutations, mapState} from 'vuex';
         },
 
         methods: {
+            ...mapActions('usuarios_main',['obtener_token']),
+
             login(){
                 let valid = this.$refs.form.validate()
-                console.log(this.sesion.username, this.sesion.contrasena)
                 if (valid){
-                    let user = {
-                        username:this.sesion.username,
-                        contrasena:this.sesion.contrasena
-                    }
-                    this.$store.dispatch('usuarios_main/recibirToken',user)
+                    this.obtener_token({'username': this.username, 'password': this.contrasena})
                     this.reset()
                 }  
             },

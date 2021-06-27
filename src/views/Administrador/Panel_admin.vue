@@ -14,7 +14,8 @@
                             </v-list-item-avatar>
 
                             <v-list-item-content>
-                                <v-list-item-title>Jorge Cardenas</v-list-item-title>
+                                <!-- {{ get_user.first_name }} {{ get_user.last_name }} -->
+                                <v-list-item-title> {{get_first_name}} </v-list-item-title>
                                 <v-list-item-subtitle>Admnistrador</v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
@@ -38,7 +39,7 @@
                 
                 <template v-slot:append>
                     <div class="pa-2">
-                        <v-btn :to="{ name:'iniciar_sesion'}" color="black" dark block>Cerrar Sesión</v-btn>
+                        <v-btn color="black" dark block @click="logout">Cerrar Sesión</v-btn>
                     </div>
                 </template>
         </v-navigation-drawer>
@@ -69,7 +70,9 @@
 </template>
 
 <script>
+import {mapGetters, mapActions} from 'vuex'
 import Usuarios from '../../components/Usuarios.vue'
+
     export default {
         data: () => ({
             dialog: false,
@@ -78,6 +81,12 @@ import Usuarios from '../../components/Usuarios.vue'
         }),
         components:{
             Usuarios
-        }
+        },
+        computed: {
+            ...mapGetters('usuarios_main', ['get_first_name'])
+        },
+        methods: {
+            ...mapActions('usuarios_main', ['logout'])
+        },
     }
 </script>

@@ -47,7 +47,7 @@
                 
                 <template v-slot:append>
                     <div class="pa-2">
-                        <v-btn :to="{ name:'iniciar_sesion'}" color="black" dark block>Cerrar Sesión</v-btn>
+                        <v-btn color="black" dark block @click="logout">Cerrar Sesión</v-btn>
                     </div>
                 </template>
         </v-navigation-drawer>
@@ -75,7 +75,7 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
+    import {mapState, mapActions} from 'vuex'
     export default {
         name:'PanelMedico',
         data: () => ({
@@ -85,7 +85,10 @@
         }),
         computed:{
             ...mapState('simula',['simulacion'])
-        }
+        },
+        methods: {
+            ...mapActions('usuarios_main', ['logout'])
+        },
 
     }
 </script>

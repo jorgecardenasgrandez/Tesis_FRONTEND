@@ -8,7 +8,7 @@
         >
             <template v-slot:top>
                 <v-toolbar flat color="white">
-                    <v-toolbar-title>Lista de usuarios</v-toolbar-title>
+                    <v-toolbar-title>User list</v-toolbar-title>
 
                     <v-divider
                     class="mx-4"
@@ -33,28 +33,37 @@
                                 <v-card-title>
                                     <span class="headline">{{ formTitle }}</span>
                                 </v-card-title>
-                                <!-- sm="6" md="4" -->
+                                <!-- sm="6" md="4"   :disabled="deshabilitar"-->
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
                                             <v-col cols="12">
-                                                <v-text-field v-model="editedItem.first_name" label="Nombre" :rules="txtfieldRules"></v-text-field>
-                                                <v-text-field v-model="editedItem.last_name" label="Apellido" :rules="txtfieldRules"></v-text-field>
-                                                <v-text-field v-model="editedItem.username" label="Usuario" :rules="txtfieldRules"></v-text-field>
+                                                <v-text-field v-model="editedItem.nombres" label="Firstname" :rules="txtfieldRules"></v-text-field>
+                                                <v-text-field v-model="editedItem.apellidos" label="Lastname" :rules="txtfieldRules"></v-text-field>
+                                                
+                                                <v-select
+                                                    v-model="editedItem.genero"
+                                                    :rules="txtfieldRules"
+                                                    :items="['Male', 'Female']"
+                                                    label="Gender"
+                                                ></v-select>
+
+                                                <v-text-field v-model="editedItem.username" label="Username" :rules="username_rules"></v-text-field>
                                                 <v-text-field
                                                 v-model="editedItem.password"
                                                 :append-icon="show_eye ? 'mdi-eye' : 'mdi-eye-off'"
                                                 :rules="txtfieldRules"
                                                 :type="show_eye ? 'text' : 'password'"
-                                                label="Contraseña"
+                                                :disabled="deshabilitar"
+                                                label="Password"
                                                 requerided
                                                 @click:append="show_eye = !show_eye"
                                                 ></v-text-field>
                                                 <v-select
-                                                v-model="editedItem.user_type"
+                                                v-model="editedItem.is_staff"
                                                 :rules="txtfieldRules"
-                                                :items="['Administrador', 'Tecnico', 'Medico']"
-                                                label="Tipo de Usuario"
+                                                :items="['Admin', 'Doctor']"
+                                                label="User type"
                                                 ></v-select>
                                             </v-col>
                                         </v-row>
@@ -91,14 +100,12 @@
                     mdi-delete
                 </v-icon>
             </template>
-            <template v-slot:no-data>
-                <v-btn color="primary" @click="initialize">Reset</v-btn>
-            </template>
         </v-data-table>
 
         <v-snackbar
             v-model="snack.mdl"
             :color="snack.color"
+            :timeout="snack_timeout"
         >
             {{ snack.msg }}
             <v-btn
@@ -114,19 +121,23 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
-import axios from 'axios';
+import {mapActions, mapState} from 'vuex';
 
     export default {
         username:'usernames',
         data: () => ({
             valid:true,
             show_eye:false,
-            contrasena:'',
+            //contrasena:'',
+            deshabilitar: false,
             txtfieldRules: [
                 v => !!v || 'Es requerido.'
             ],
-
+            username_rules: [
+                v => !!v || 'Es requerido.',
+                v => (v && v.length <= 10) || 'Maximo 10 caracteres.'
+            ],
+            snack_timeout: 0,
             snack:{
                 mdl:false,
                 msg:'',
@@ -135,41 +146,41 @@ import axios from 'axios';
 
             dialog: false,
             headers: [
-                {
-                text: 'Usuario',
-                align: 'start',
-                sortable: false,
-                value: 'username',
-                },
                 { text: 'ID', value: 'id' },
-                { text: 'Nombre', value: 'first_name' },
-                { text: 'Apellido', value: 'last_name' },
-                { text: 'Tipo usuario', value: 'user_type' },
-                { text: 'Acciones', value: 'actions', sortable: false },
+                { text: 'Username', align: 'start', sortable: false, value: 'username'},
+                { text: 'Firstname', value: 'nombres' },
+                { text: 'Lastname', value: 'apellidos' },
+                { text: 'Gender', value: 'genero' },
+                { text: 'User type', value: 'is_staff', sortable: false },
+                { text: 'Actions', value: 'actions', sortable: false },
             ],
-            valor_username: [], //El valor que tiene los objetos oficiales
+            valor_username_ux: [], //El valor que tiene los objetos oficiales
             editedIndex: -1,
             editedItem: {
                 username: '',
                 id: '',
-                first_name: '',
-                last_name: '',
+                nombres: '',
+                apellidos: '',
+                genero: '',
                 password:'',
-                user_type: '',
+                is_staff: '',
             },
             defaultItem: {
                 username: '',
                 id: '',
-                first_name: '',
-                last_name: '',
+                nombres: '',
+                apellidos: '',
+                genero: '',
                 password:'',
-                user_type: '',
+                is_staff: '',
             },
         }),
 
         computed: {
+            ...mapState('gestion_usuario', ['valor_username']),
+
             formTitle () {
-                return this.editedIndex === -1 ? 'Nuevo usuario' : 'Editar usuario'
+                return this.editedIndex === -1 ? 'New user' : 'Edit user'
             },
         },
 
@@ -184,6 +195,8 @@ import axios from 'axios';
         },
 
         methods: {
+            ...mapActions('gestion_usuario', ['initialize', 'eliminar_usuario', 'registrar_usuario', 'actualizar_usuario']),
+
             validate () {
                 this.$refs.form.validate()
             },
@@ -191,39 +204,34 @@ import axios from 'axios';
                 this.$refs.form.resetValidation()
             },
 
-            async initialize () {
-                try {
-                    const response = await axios.get('')
-                    await response.data.forEach(element => {
-                        let usuario = {}
-                        usuario.id = element.id
-                        usuario.first_name = element.first_name
-                        usuario.last_name = element.last_name
-                        usuario.username = element.username
-                        usuario.password = element.password
-                        usuario.user_type = element.user_type
-                        this.valor_username.push(usuario)
-                    })
-                } catch (error) {
-                    console.log(error.response.data)
-                }
-            },
-
             editItem (item) {
                 this.editedIndex = this.valor_username.indexOf(item)
                 this.editedItem = Object.assign({}, item)
+                if (item.genero === 'M'){
+                    this.editedItem.genero = 'Male'
+                }else{
+                    this.editedItem.genero = 'Female'
+                }
+
+                if (item.is_staff){
+                    this.editedItem.is_staff = 'Admin'
+                }else{
+                    this.editedItem.is_staff = 'Doctor'
+                }
+                this.editedItem.password = '********'
+                this.deshabilitar = true
                 this.dialog = true
             },
 
-            async deleteItem (item) { //poner async
+            deleteItem (item) {
                 const index = this.valor_username.indexOf(item)
-                const respuesta = confirm('¿Estas seguro de eliminar este usuario?') && this.valor_username.splice(index, 1)
+                const respuesta = confirm('Are you sure you want to delete this user?')
 
                 if (respuesta){
-                    await axios.delete(`usuario/${item.id}`) //, this.config
+                    this.eliminar_usuario({'id': item.id, 'index': index})
                     this.snack.mdl = true
                     this.snack.color = "success"
-                    this.snack.msg = "Se elimino correctamente."
+                    this.snack.msg = "Correctly removed."
                 }
                 
             },
@@ -235,51 +243,32 @@ import axios from 'axios';
                 this.editedIndex = -1
                 })
                 this.resetValidation()
+                this.deshabilitar = false
             },
 
-            async save () { //PONER EL ASYNC
+            save () { //PONER EL ASYNC
                 let valid_formulario = this.$refs.form.validate()
                 if (valid_formulario){
                     if (this.editedIndex > -1) {//EDITAR
-                        //Object.assign(this.valor_username[this.editedIndex], this.editedItem)
-                        
-                        try{
 
-                            const response = await axios.put(`usuario/${this.editedItem.id}`, this.editedItem) //, this.config
-                            Object.assign(this.valor_username[this.editedIndex], this.editedItem) //Si editamos correctamente, va a cambiar la vista
+                        try{
+                            this.actualizar_usuario({index: this.editedIndex, user: this.editedItem})
 
                             this.snack.mdl = true
                             this.snack.color = "success"
-                            this.snack.msg = `El usuario se editó exitosamente.`
+                            this.snack.msg = `User successfully edited.`
                         }catch(error){
                             console.log(error)
                         }
                         
-                    } else {//AGREGAR
+                    } else {  //AGREGAR
                         //El editItem tiene el nuevo valor y el valor editado ya que comparten la misma vista
-                        const new_usuario = {
-                            first_name: this.editedItem.first_name,
-                            last_name: this.editedItem.last_name,
-                            username: this.editedItem.username,
-                            password: this.editedItem.password,
-                            user_type: this.editedItem.user_type
-                        }
-                        console.log(new_usuario)
-                        try {
-                            const response = await axios.post('usuario', new_usuario)
-                            this.editedItem.first_name = response.data.first_name
-                            this.editedItem.last_name = response.data.last_name
-                            this.editedItem.username = response.data.username
-                            this.editedItem.user_type = response.data.user_type
-                            this.editedItem.password = response.data.password
-                            this.valor_username.push(this.editedItem)
+                        this.deshabilitar = false
+                        this.registrar_usuario(this.editedItem)
 
-                            this.snack.mdl = true
-                            this.snack.color = "success"
-                            this.snack.msg = "El usuario se guardó exitosamente."
-                        } catch (error) {
-                            console.log(error)
-                        }
+                        this.snack.mdl = true
+                        this.snack.color = "success"
+                        this.snack.msg = "User successfully registered."
                     }
                     this.close()
                 }

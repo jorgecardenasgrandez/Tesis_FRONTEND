@@ -7,12 +7,18 @@
 </template>
 
 <script>
-
+import {mapActions} from 'vuex';
 export default {
   name: 'App',
 
   data: () => ({
     //
   }),
+  methods: {
+    ...mapActions('usuarios_main',['cargar_local_storage'])
+  },
+  created () {
+    this.cargar_local_storage();
+  },
 };
 </script>

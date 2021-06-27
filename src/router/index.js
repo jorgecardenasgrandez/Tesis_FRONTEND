@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '../store'
 
 Vue.use(VueRouter)
   const routes = [
@@ -11,12 +12,13 @@ Vue.use(VueRouter)
   {
     path: '/',
     name: 'iniciar_sesion',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Sesion/Iniciar_sesion.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Sesion/Iniciar_sesion.vue'),
   },
   {
     path: '/medico',
     name: 'medico',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/Prediccion.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/Prediccion.vue'),
+    meta: {ruta_protegida:true}
   },
   {
     path: '/listar_pacientes',
@@ -31,14 +33,28 @@ Vue.use(VueRouter)
   {
     path:'/admin',
     name: 'administrador',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Administrador/Panel_admin.vue')
-  }
+    component: () => import(/* webpackChunkName: "about" */ '../views/Administrador/Panel_admin.vue'),
+    meta: {ruta_protegida:true}
+  },
 ]
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.ruta_protegida){
+    console.log(store.getters['usuarios_main/loggedIn'])
+    if(store.getters['usuarios_main/loggedIn']){
+      next()
+    }else{
+      next('/')
+    }
+  }else{
+    next()
+  }
 })
 
 export default router
