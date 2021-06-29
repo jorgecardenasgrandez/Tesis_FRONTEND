@@ -19,7 +19,7 @@
 
             <v-col cols="12" md="6" sm="6" xs="6">
                 <v-card class="pa-3 ma-3" flat>
-                    <h1 align="center">Iniciar Sesión</h1>
+                    <h1 align="center">Log in to your account</h1>
                         <v-form
                             ref="form"
                             v-model="valid"
@@ -29,7 +29,7 @@
                             <v-text-field
                             v-model="username"
                             :rules="usuarioRules"
-                            label="Usuario"
+                            label="Username"
                             prepend-icon="mdi-account"
                             required
                             ></v-text-field>
@@ -40,7 +40,7 @@
                             :rules="passRules"
                             :type="show_eye ? 'text' : 'password'"
                             prepend-icon="mdi-lock"
-                            label="Contraseña"
+                            label="Password"
                             requerided
                             @click:append="show_eye = !show_eye"
                             ></v-text-field>
@@ -53,33 +53,23 @@
                             color="success"
                             class="mt-4 mr-1 ml-1"
                             >
-                            Ingresar
+                            Log in
                             </v-btn>
                         </v-form>
                 </v-card>
             </v-col>
         </v-row>
 
-        <v-snackbar
-            v-model="snack.model_snack"
-            color = "error"
-            :timeout="timeout_snack"
-        >
-            {{ snack.msg }}
-            <v-btn
-                color="black"
-                text
-                @click="snack.model_snack = false"
-            >
-                Cerrar
-            </v-btn>
-        </v-snackbar>
+        <Msg :snack="snack" />
+        <Loading :loading="loading"/>
 
     </v-container>
 </template>
 
 <script>
 import {mapActions, mapState} from 'vuex';
+import Msg from '@/components/Mensaje'
+import Loading from '@/components/Loading'
 
     export default {
         data(){
@@ -92,16 +82,20 @@ import {mapActions, mapState} from 'vuex';
                 contrasena: '',
 
                 usuarioRules: [
-                    v => !!v || 'El usuario es requerido.'
+                    v => !!v || 'Username is required'
                 ],
                 passRules:[
-                    v => !!v || 'La contraseña es requerida.'
+                    v => !!v || 'Password is required'
                 ]
             }
         },
+        components: {
+            Msg,
+            Loading
+        },
         
         computed:{
-            ...mapState('usuarios_main',['sesion', 'snack'])
+            ...mapState('usuarios_main',['sesion', 'snack', 'loading'])
         },
 
         methods: {
@@ -121,7 +115,6 @@ import {mapActions, mapState} from 'vuex';
                 this.$refs.form.reset()
             }
         },
-
     }
 </script>
 

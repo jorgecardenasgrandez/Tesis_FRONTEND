@@ -5,11 +5,6 @@ import store from '../store'
 Vue.use(VueRouter)
   const routes = [
   {
-    path: '/about',
-    name: 'About',
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  },
-  {
     path: '/',
     name: 'iniciar_sesion',
     component: () => import(/* webpackChunkName: "about" */ '../views/Sesion/Iniciar_sesion.vue'),
@@ -23,12 +18,14 @@ Vue.use(VueRouter)
   {
     path: '/listar_pacientes',
     name: 'pacientes',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/ListarPacientes.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/ListarPacientes.vue'),
+    meta: {ruta_protegida:true}
   },
   {
     path: '/listar_predicciones/:id',
     name: 'predicciones',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/ListarPredicciones.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Medico/ListarPredicciones.vue'),
+    meta: {ruta_protegida:true}
   },
   {
     path:'/admin',

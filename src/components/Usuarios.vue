@@ -5,10 +5,12 @@
             :items="valor_username"
             sort-by="id"
             class="elevation-1"
+            loading
+            loading-text="Loading users list ... Please wait"
         >
             <template v-slot:top>
                 <v-toolbar flat color="white">
-                    <v-toolbar-title>User list</v-toolbar-title>
+                    <v-toolbar-title>Users list</v-toolbar-title>
 
                     <v-divider
                     class="mx-4"
@@ -102,47 +104,31 @@
             </template>
         </v-data-table>
 
-        <v-snackbar
-            v-model="snack.mdl"
-            :color="snack.color"
-            :timeout="snack_timeout"
-        >
-            {{ snack.msg }}
-            <v-btn
-                color="black"
-                text
-                @click="snack.mdl = false"
-            >
-                Cerrar
-            </v-btn>
-        </v-snackbar>
+        <Msg :snack="snack" />
+        <Loading :loading="loading"/>
 
     </v-container>
 </template>
 
 <script>
 import {mapActions, mapState} from 'vuex';
+import Msg from '@/components/Mensaje'
+import Loading from '@/components/Loading'
 
     export default {
         username:'usernames',
         data: () => ({
             valid:true,
             show_eye:false,
-            //contrasena:'',
-            deshabilitar: false,
+            deshabilitar: false,  // password
+
             txtfieldRules: [
                 v => !!v || 'Es requerido.'
             ],
             username_rules: [
                 v => !!v || 'Es requerido.',
                 v => (v && v.length <= 10) || 'Maximo 10 caracteres.'
-            ],
-            snack_timeout: 0,
-            snack:{
-                mdl:false,
-                msg:'',
-                color:''
-            },  
+            ],  
 
             dialog: false,
             headers: [
@@ -176,8 +162,13 @@ import {mapActions, mapState} from 'vuex';
             },
         }),
 
+        components: {
+            Msg,
+            Loading
+        },
+
         computed: {
-            ...mapState('gestion_usuario', ['valor_username']),
+            ...mapState('gestion_usuario', ['valor_username', 'snack', 'loading']),
 
             formTitle () {
                 return this.editedIndex === -1 ? 'New user' : 'Edit user'
@@ -226,49 +217,31 @@ import {mapActions, mapState} from 'vuex';
             deleteItem (item) {
                 const index = this.valor_username.indexOf(item)
                 const respuesta = confirm('Are you sure you want to delete this user?')
-
                 if (respuesta){
                     this.eliminar_usuario({'id': item.id, 'index': index})
-                    this.snack.mdl = true
-                    this.snack.color = "success"
-                    this.snack.msg = "Correctly removed."
                 }
-                
             },
 
             close () {
                 this.dialog = false
                 this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem)
-                this.editedIndex = -1
-                })
+                    this.editedItem = Object.assign({}, this.defaultItem)
+                    this.editedIndex = -1})
                 this.resetValidation()
                 this.deshabilitar = false
             },
 
-            save () { //PONER EL ASYNC
+            save () {
                 let valid_formulario = this.$refs.form.validate()
                 if (valid_formulario){
                     if (this.editedIndex > -1) {//EDITAR
 
-                        try{
-                            this.actualizar_usuario({index: this.editedIndex, user: this.editedItem})
-
-                            this.snack.mdl = true
-                            this.snack.color = "success"
-                            this.snack.msg = `User successfully edited.`
-                        }catch(error){
-                            console.log(error)
-                        }
-                        
+                        this.actualizar_usuario({index: this.editedIndex, user: this.editedItem})
+                    
                     } else {  //AGREGAR
                         //El editItem tiene el nuevo valor y el valor editado ya que comparten la misma vista
                         this.deshabilitar = false
                         this.registrar_usuario(this.editedItem)
-
-                        this.snack.mdl = true
-                        this.snack.color = "success"
-                        this.snack.msg = "User successfully registered."
                     }
                     this.close()
                 }

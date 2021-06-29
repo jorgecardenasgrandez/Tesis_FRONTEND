@@ -7,13 +7,32 @@ export default{
         user: null,
         snack:{
             model_snack:false,
-            msg:''
+            msg:'',
+            color: 'success',
+            icono_success: true
+        },
+        loading:{
+            estado:false
         }
     },
     mutations:{
-        mostrarSnackBar(state, msg){
-            state.snack.model_snack = true
-            state.snack.msg = msg
+        set_message(state, msg){
+            if (msg.status === 403){  //user not found
+                state.snack.model_snack = true
+                state.snack.msg = msg.data.detail
+                state.snack.color = 'amber darken-3' // info
+                state.snack.icono_success = false
+            }else if(msg.status === 200){  //delete
+                state.snack.model_snack = true
+                state.snack.msg = msg.data.detail
+                state.snack.color = 'success'
+                state.snack.icono_success = true
+            }else{
+                state.snack.model_snack = true
+                state.snack.msg = 'Internal Server Error'
+                state.snack.color = 'error'
+                state.snack.icono_success = false
+            }
         },
 
         set_usuario(state, payload){
@@ -38,8 +57,9 @@ export default{
             }
         },
 
-        async obtener_token({commit}, credenciales){
+        async obtener_token({commit, state}, credenciales){
             try {
+                state.loading.estado=true
                 await axios.post('api/user/login/', {
                     username: credenciales.username,
                     password: credenciales.password
@@ -55,12 +75,15 @@ export default{
                     localStorage.setItem('user_token', JSON.stringify(response.data))
 
                 }).catch(error => {
-                    commit('mostrarSnackBar', error.response.data.detail)
+                    commit('set_message', error.response)
                 })
             } catch (error) {
                 console.log(error)
-                commit('mostrarSnackBar', "Error en la consulta!.")
+                commit('set_message', {'status': 500})
+            }finally{
+                state.loading.estado=false
             }
+            
         },
 
         async logout({commit}){
@@ -68,15 +91,15 @@ export default{
                 await axios.get('api/user/logout/', {
                     headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
                 }).then(response => {
-                    
                     commit('eliminar_token')
+                    commit('set_message', response)
 
                 }).catch(error => {
-                    commit('mostrarSnackBar', error.response.data.detail)
+                    commit('set_message', error.response)
                 })
             }catch(error){
-                console.log("GENERAL:", error)
-                commit('mostrarSnackBar', "Error en la consulta!.")
+                console.log(error)
+                commit('mostrarSnackBar', {'status': 500})
             }
         },
     },

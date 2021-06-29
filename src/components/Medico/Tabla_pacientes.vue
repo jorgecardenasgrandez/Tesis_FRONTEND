@@ -6,7 +6,7 @@
           :items="paciente"
           class="elevation-1"
           loading
-          loading-text="Loading patient list... Please wait"
+          loading-text="Loading patient list ... Please wait"
         >
           <template v-slot:top> 
             <v-toolbar flat color="white">

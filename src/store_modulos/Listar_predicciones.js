@@ -157,7 +157,9 @@ export default{
     actions:{
         async consultarPacientes({commit}){
             try{
-                const response = await axios.get('api/paciente/list/')
+                const response = await axios.get('api/paciente/list/', {
+                    headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
+                })
                 commit('listar_pacientes', response.data)
             }catch(error){
                 console.log(error)
@@ -166,7 +168,9 @@ export default{
         
         async consultarPredicciones({commit}, id){  // Realizar el filtro d nuestra lista de pacientes
             try{
-                const response = await axios.get(`api/prediction/list/${id}/`)
+                const response = await axios.get(`api/prediction/list/${id}/`, {
+                    headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
+                })
                 commit('listar_predicciones', response.data)
             }catch(error){
                 console.log(error)
@@ -176,7 +180,9 @@ export default{
         async mostrarExplicacion({commit}, id){
             const fr = {}
             try{
-                const response = await axios.get(`api/explainability/detail/${id}/`)
+                const response = await axios.get(`api/explainability/detail/${id}/`, {
+                    headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
+                })
             
                 fr["fr0"] = response.data.aox_time.split("|")[0]
                 fr["val0"] = response.data.aox_time.split("|")[1]

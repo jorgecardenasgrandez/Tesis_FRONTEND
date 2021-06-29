@@ -236,16 +236,6 @@
             <v-col cols="12" md="6" sm="6">
                 
                 <div v-if = "loaded"> <FactoresRiesgo></FactoresRiesgo> </div>    
-                <!--<v-row v-if = !showRF>
-                </v-row>
-                <template>
-                    <div class="container">
-                        <factores-riesgo
-                        v-if="loaded"
-                        :chartdata="chartdata"
-                        :options="options"/>
-                    </div>
-                </template> 344 -->
                 
                 <v-card class="mx-auto" max-width="344">
                     <v-card-title>
@@ -485,7 +475,11 @@ import {EventBus} from '../../main.js'
 
                         this.loading.estado = true
 
-                        const response = await axios.post('api/prediction/register/', paciente_pediatrico)
+                        const response = await axios.post('api/prediction/register/', 
+                                                        paciente_pediatrico,
+                                                        {headers: 
+                                                            {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
+                                                        })
                         // console.log(response.data)
                         this.loading.estado = false
 

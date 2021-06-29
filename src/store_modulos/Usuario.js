@@ -5,16 +5,44 @@ import { controllers } from 'chart.js'
 export default{
     namespaced:true,
     state:{
-        user: null,
-        snack_u:{
+        snack:{
             model_snack:false,
-            msg:''
+            msg:'',
+            color: 'success',
+            icono_success: true
+        },
+        loading:{
+            estado:false
         },
 
         valor_username: [],
 
     },
     mutations:{
+        set_message(state, msg){
+            if (msg.status === 200){
+                state.snack.model_snack = true
+                state.snack.msg = msg.data.detail
+                state.snack.color = 'success'
+                state.snack.icono_success = true
+            }else if(msg.status === 400){ //username already exists
+                state.snack.model_snack = true
+                state.snack.msg = msg.data.username[0]
+                state.snack.color = 'amber darken-3'
+                state.snack.icono_success = false
+            }else if(msg.status === 403){
+                state.snack.model_snack = true
+                state.snack.msg = msg.data.detail
+                state.snack.color = 'amber darken-3' // info
+                state.snack.icono_success = false
+            }else{
+                state.snack.model_snack = true
+                state.snack.msg = 'Internal Server Error'
+                state.snack.color = 'error'
+                state.snack.icono_success = false
+            }
+        },
+
         set_usuarios(state, payload){
             state.valor_username = payload
         },
@@ -35,98 +63,105 @@ export default{
     actions:{
         async initialize ({commit}) {
             try {
-                await axios.get('api/user/list/', {
-                    headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
-                }).then(function(response) {
-                    
-                    const usuarios = []
-                    response.data.forEach(element => {
-                        usuarios.push(element)    
-                    })
+                await axios.get('api/user/list/', 
+                                {headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
+                                }).then(function(response) {
+                                    
+                                    const usuarios = []
+                                    response.data.forEach(element => {
+                                        usuarios.push(element)    
+                                    })
 
-                    commit('set_usuarios', usuarios)
+                                    commit('set_usuarios', usuarios)
 
-                }).catch(error => {
-                    console.log("error 1")
-                    console.log(error.response.data)  // Error de que no esta actualizado el token
-                    //commit('mostrarSnackBar', error.response.data.detail)
-                })
+                                }).catch(error => {
+                                    commit('set_message', error.response)
+                                })
             } catch (error) {
-                console.log(error.response.data)
+                console.log(error)
+                commit('set_message', {'status': 500})
             }
         },
 
-        async registrar_usuario({commit}, usuario){
-            const nuevo_usuario = {}
-            if (usuario.genero === 'Male'){ nuevo_usuario.genero = 'M' }else{ nuevo_usuario.genero = 'F' }
-
-            if (usuario.is_staff === 'Admin'){ nuevo_usuario.is_staff = true }else{ nuevo_usuario.is_staff = false }
-
-            nuevo_usuario.nombres = usuario.nombres
-            nuevo_usuario.apellidos = usuario.apellidos
-            nuevo_usuario.username = usuario.username
-            nuevo_usuario.password = usuario.password
-            
+        async registrar_usuario({commit, state}, usuario){
             try{
-                const response = await axios.post('api/user/register/', 
-                                                nuevo_usuario, 
-                                                {headers: 
-                                                    {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
-                                                })
+                state.loading.estado=true
 
-                commit('set_usuario', nuevo_usuario)
+                const nuevo_usuario = {}
+                if (usuario.genero === 'Male'){ nuevo_usuario.genero = 'M' }else{ nuevo_usuario.genero = 'F' }
+
+                if (usuario.is_staff === 'Admin'){ nuevo_usuario.is_staff = true }else{ nuevo_usuario.is_staff = false }
+
+                nuevo_usuario.nombres = usuario.nombres
+                nuevo_usuario.apellidos = usuario.apellidos
+                nuevo_usuario.username = usuario.username
+                nuevo_usuario.password = usuario.password
+
+                await axios.post('api/user/register/', 
+                                nuevo_usuario, 
+                                {headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}}
+                                ).then(response=>{
+                                    commit('set_usuario', nuevo_usuario)
+                                    commit('set_message', response)
+                                }).catch(error=>{
+                                    commit('set_message', error.response)  //username already exists
+                                })
+            }catch(error){
+                console.log(error)
+                commit('set_message', {'status': 500})
+            }finally{
+                state.loading.estado=false
+            }
+        },
+
+        async actualizar_usuario({commit,state}, objeto){
+            try{
+                state.loading.estado=true
+
+                const usuario_edit = {}
+                if (objeto.user.genero === 'Male'){ usuario_edit.genero = 'M' }else{ usuario_edit.genero = 'F' }
+
+                if (objeto.user.is_staff === 'Admin'){ usuario_edit.is_staff = true }else{ usuario_edit.is_staff = false }
                 
-            }catch(error){
-                console.log(error)
-            }
-        },
+                usuario_edit.nombres = objeto.user.nombres
+                usuario_edit.apellidos = objeto.user.apellidos
+                usuario_edit.username = objeto.user.username
 
-        async actualizar_usuario({commit}, objeto){
-            const usuario_edit = {}
-            if (objeto.user.genero === 'Male'){ usuario_edit.genero = 'M' }else{ usuario_edit.genero = 'F' }
-
-            if (objeto.user.is_staff === 'Admin'){ usuario_edit.is_staff = true }else{ usuario_edit.is_staff = false }
-            
-            usuario_edit.nombres = objeto.user.nombres
-            usuario_edit.apellidos = objeto.user.apellidos
-            usuario_edit.username = objeto.user.username
-            
-            try{
                 await axios.put(`api/user/update/${objeto.user.id}/`, 
-                usuario_edit, 
-                {headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}}
-                ).then(response => {
-                    commit('actualizar', {idx: objeto.index, user: usuario_edit})
-                }).catch(error => {
-                    console.log("error 1")
-                    console.log(error.response.data)  // Error de que no esta actualizado el token
-                    //commit('mostrarSnackBar', error.response.data.detail)
-                })
+                                usuario_edit, 
+                                {headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}}
+                                ).then(response => {
+                                    commit('actualizar', {idx: objeto.index, user: usuario_edit})
+                                    commit('set_message', {status:200, data: {detail:'User successfully edited'}})
+                                }).catch(error => {
+                                    commit('set_message', error.response)  //username already exists
+                                })
             }catch(error){
                 console.log(error)
+                commit('set_message', {'status': 500})
+            }finally{
+                state.loading.estado=false
             }
         },
 
-        async eliminar_usuario({commit}, identificador){
+        async eliminar_usuario({commit, state}, identificador){
             try{
-                await axios.delete(`api/user/delete/${identificador.id}/`, {
-                    headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
-                }).then(response => {
+                state.loading.estado=true
 
-                    commit('eliminar', identificador.index)
-
-                }).catch(error => {
-                    console.log("error 1")
-                    console.log(error.response.data)  // Error de que no esta actualizado el token
-                    //commit('mostrarSnackBar', error.response.data.detail)
-                })
+                await axios.delete(`api/user/delete/${identificador.id}/`,
+                                {headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
+                                }).then(response => {
+                                    commit('eliminar', identificador.index)
+                                    commit('set_message', response)
+                                }).catch(error => {
+                                    commit('set_message', error.response)
+                                })
             }catch(error){
                 console.log(error)
+                commit('set_message', {'status': 500})
+            }finally{
+                state.loading.estado=false
             }
         }
-    },
-
-    getters: {
-        
     }
 }
