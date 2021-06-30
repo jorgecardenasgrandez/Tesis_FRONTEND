@@ -58,17 +58,22 @@
                 <v-card-text> 
                     <ExplicacionFR></ExplicacionFR>
                 </v-card-text>
-                
+                <v-card-title>
+                    <p class="green--text">Total survival impact: {{ impacto.positivo }}% </p> 
+                    <p class="red--text">Total mortality impact: {{ impacto.negativo }}% </p>
+                </v-card-title>
             </v-card>
         </v-dialog>
+
+        <Loading :loading="loading"/>
             
     </v-container>
 </template>
 
 <script>
 import PanelMedico from '@/components/Panel_medico'
-import Explicacion from '@/components/Explicacion/Explicacion_comp'
 import ExplicacionFR from '@/components/Explicacion/Explicacion_comp.vue' //es sin el .vue
+import Loading from '@/components/Loading'
 import {mapState, mapActions} from 'vuex'
 
 
@@ -76,8 +81,8 @@ export default {
     name: 'ListarPredicciones',
     components: {
         PanelMedico,
-        Explicacion,
-        ExplicacionFR
+        ExplicacionFR,
+        Loading
     },
     data() {
         return {
@@ -104,7 +109,7 @@ export default {
         }
     },
     computed: {
-        ...mapState('listar_predicciones_main', ['predicciones'])
+        ...mapState('listar_predicciones_main', ['predicciones', 'impacto', 'loading'])
     },
     created () {
         this.consultarPredicciones(this.$route.params.id);

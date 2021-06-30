@@ -17,12 +17,12 @@
                                             <template v-slot:activator="{ on }">
                                                 <span v-on="on">{{simulacion.titulo_card}}</span>
                                             </template>
-                                            <span>En cirugias cardiacas congenitas pediatricas</span>
+                                            <span>Pediatric congenital cardiac surgeries</span>
                                         </v-tooltip>
                                         
 
                                     </v-list-item-title>
-                                    <v-list-item-subtitle>para
+                                    <v-list-item-subtitle>to
                                         <v-chip
                                         class="ma-2"
                                         color="primary"
@@ -49,7 +49,7 @@
                                 v-model="simulacion.panel">
                                 <v-col cols="12">
                                     <v-expansion-panel>
-                                        <v-expansion-panel-header>Datos basicos</v-expansion-panel-header>
+                                        <v-expansion-panel-header>Basic data</v-expansion-panel-header>
                                         <v-expansion-panel-content>
                                             <v-row>
                                                 <v-col cols="12" md="6">
@@ -69,7 +69,7 @@
                                                         :rules="txtfieldRules"
                                                         rounded
                                                         filled
-                                                        label="Nombre"
+                                                        label="Name"
                                                         required
                                                     ></v-text-field>
                                                 </v-col>
@@ -79,7 +79,7 @@
                                 </v-col>
                                 <v-col cols="12">
                                     <v-expansion-panel>
-                                        <v-expansion-panel-header>Factores de riesgo</v-expansion-panel-header>
+                                        <v-expansion-panel-header>Risk Factors</v-expansion-panel-header>
                                         <v-expansion-panel-content>
                                             <v-row>
                                                 <v-col cols="12" md="4">
@@ -89,8 +89,8 @@
                                                         rounded
                                                         @keypress="isNumber($event)" 
                                                         filled
-                                                        label="Edad"
-                                                        hint="Dias de Nacimiento"
+                                                        label="Age"
+                                                        hint="Days of birth"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -99,11 +99,10 @@
                                                     <v-select
                                                         v-model="paciente.sexo"
                                                         :rules="txtfieldRules"
-                                                        :items="['Masculino', 'Femenino']"
-                                                        
+                                                        :items="['Male', 'Female']"
                                                         rounded
                                                         filled
-                                                        label="Sexo"
+                                                        label="Gender"
                                                         return-object
                                                         required
                                                     ></v-select>
@@ -115,8 +114,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="Peso (kg)"
-                                                        hint=""
+                                                        label="Weights"
+                                                        hint="Kg"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -128,10 +127,10 @@
                                                     <v-select
                                                         v-model="paciente.parto_prematuro"
                                                         :rules="txtfieldRules"
-                                                        :items="['Si', 'No']"
+                                                        :items="['Yes', 'No']"
                                                         rounded
                                                         filled
-                                                        label="Prematuridad"
+                                                        label="Prematurity"
                                                         required
                                                     ></v-select>
                                                 </v-col>
@@ -139,10 +138,10 @@
                                                     <v-select
                                                         v-model="paciente.antifibrinoliticos"
                                                         :rules="txtfieldRules"
-                                                        :items="['No aplicar', 'Acido tranexamico', 'Aprotinina']"
+                                                        :items="['None', 'Tranexamic acid', 'Aprotinin']"
                                                         rounded
                                                         filled
-                                                        label="Antifibrinolíticos"
+                                                        label="Antifibrinolytics"
                                                         required
                                                     ></v-select>
                                                 </v-col>
@@ -156,8 +155,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="Bypass Cardiopulmonar"
-                                                        hint="Minutos"
+                                                        label="Cardiopulmonary bypass"
+                                                        hint="Minutes - [CPB]"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -166,10 +165,10 @@
                                                     <v-select
                                                         v-model="paciente.bombeo"
                                                         :rules="txtfieldRules"
-                                                        :items="['Si', 'No']"
+                                                        :items="['Yes', 'No']"
                                                         rounded
                                                         filled
-                                                        label="Bombeo cardiaco"
+                                                        label="Pump"
                                                         required
                                                     ></v-select>
                                                 </v-col>
@@ -183,8 +182,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="Paro circulatorio"
-                                                        hint="Minutos"
+                                                        label="Deep hypothermic circulatory arrest"
+                                                        hint="Minutes - [DHCA]"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -196,8 +195,8 @@
                                                         @keypress="isNumber($event)"
                                                         rounded
                                                         filled
-                                                        label="Pinzamiento aortico"
-                                                        hint="Minutos"
+                                                        label="Aortic cross-clamp"
+                                                        hint="Minutes - [AOX]"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -208,8 +207,8 @@
                                                         :rules="preopcrRules"
                                                         rounded
                                                         filled
-                                                        label="Creatinina preoperatoria"
-                                                        hint=""
+                                                        label="Preoperative serum creatinine"
+                                                        hint="[Pre-Opcr]"
                                                         persistent-hint
                                                         required
                                                     ></v-text-field>
@@ -227,7 +226,7 @@
                             type="submit"
                             :disabled="!simulacion.valid"> 
                                 <v-icon left>mdi-chart-arc</v-icon>
-                                Predecir</v-btn>
+                                Predict</v-btn>
                         </v-card-actions>
                     </v-form>
                 </v-card>
@@ -239,24 +238,24 @@
                 
                 <v-card class="mx-auto" max-width="344">
                     <v-card-title>
-                        <span class="green--text">Impacto total supervivencia: {{ calcularPositivo }}% </span> 
-                        <span class="red--text">Impacto total mortalidad: {{ calcularNegativo }}% </span>
+                        <span class="green--text">Total survival impact: {{ calcularPositivo }}% </span> 
+                        <span class="red--text">Total mortality impact: {{ calcularNegativo }}% </span>
                     </v-card-title>
                 </v-card>
                 
                 <v-hover>
                     <template v-slot:default="{ hover }">
                         <v-card
-                            class="mx-auto"
+                            class="mx-auto mt-4"
                             max-width="344"
                         >
                             <v-card-title>
-                                Resultado predicción: <span :class="resultado.color"> {{resultado.txt}} </span>
+                                Prediction result: <span :class="resultado.color"> {{resultado.txt}} </span>
                             </v-card-title>
 
                             <v-card-subtitle>
                                 <p>DNI      : {{auxiliar.dni}}</p>
-                                <p>Nombre   : {{auxiliar.nombre}}</p>
+                                <p>Name   : {{auxiliar.nombre}}</p>
                             </v-card-subtitle>
                             
                             <v-fade-transition v-if="resultado.die == true">
@@ -265,39 +264,26 @@
                                     absolute
                                     color="#036358"
                                 >
-                                    <v-btn @click="cambiar_a_simulacion">SIMULACION</v-btn>
+                                    <v-btn @click="cambiar_a_simulacion">SIMULATION</v-btn>
                                 </v-overlay>
                             </v-fade-transition>
                         </v-card>
                     </template>
                 </v-hover>
 
-                <!-- :color="simulacion.boton_color"  type="submit" white--text  class="mb-2"   -->
-                <v-card class="mx-auto" max-width="344" v-if="simulacion.simulate">
-                    <v-card-actions>
-                        <v-btn block text class="mx-auto" color="primary" @click="terminarSimulacion">
-                            <v-icon left>mdi-chart-arc</v-icon>
-                            Terminar simulación
+                <v-card class="mx-auto mt-4" max-width="344" v-if="simulacion.simulate">
+                    
+                        <v-btn block  dark class="mx-auto" color="red" @click="terminarSimulacion">
+                            <v-icon left>mdi-arrow-left-drop-circle-outline</v-icon>
+                            END SIMULATION
                         </v-btn>
-                    </v-card-actions>
+                    
                 </v-card>
             </v-col>
 
         </v-row>
 
-        <v-snackbar
-            v-model="snack.vm"
-            :color="snack.color"
-        >
-            {{ snack.msg }}
-            <v-btn
-                color="black"
-                text
-                @click="snack.vm = false"
-            >
-                Cerrar
-            </v-btn>
-        </v-snackbar>
+        <Msg :snack="snack" />
 
         <v-dialog
             v-model="loading.estado"
@@ -310,7 +296,7 @@
                 dark
             >
                 <v-card-text>
-                Estimando la mortalidad ...
+                Estimating mortality ...
                 <v-progress-linear
                     indeterminate
                     color="white"
@@ -328,7 +314,8 @@
 import {mapState, mapMutations} from 'vuex';
 import axios from 'axios';
 import PanelMedico from '../../components/Panel_medico.vue'
-import FactoresRiesgo from '../../components/Factores_comp.vue' //es sin el .vue
+import FactoresRiesgo from '../../components/Factores_comp.vue'
+import Msg from '@/components/Mensaje'
 import {EventBus} from '../../main.js'
 
     export default {
@@ -340,9 +327,10 @@ import {EventBus} from '../../main.js'
                 loaded: false,
 
                 snack:{
-                    vm:false,
-                    color:'',
-                    msg:''
+                    model_snack:false,
+                    msg:'',
+                    color: 'success',
+                    icono_success: true
                 },
 
                 loading:{
@@ -366,42 +354,43 @@ import {EventBus} from '../../main.js'
                 },
 
                 txtfieldRules:[
-                    v => !!v || 'Es requerido.'
+                    v => !!v || 'Required'
                 ],
                 dniRules:[
-                    v => !!v || 'El DNI es requerido.',
-                    v => (v && v.length == 8) || '8 caracteres.'
+                    v => !!v || 'DNI is required',
+                    v => (v && v.length == 8) || '8 characters.'
                 ],
                 edadRules:[
-                    v => !!v || 'La edad es requerida.',
-                    v => v >= 0 || 'Edad minima es 0 dias.',
+                    v => !!v || 'Year is required',
+                    v => v >= 0 || 'Minimum age is 0 days',
                 ],
                 pesoRules:[
-                    v => !!v || 'El peso es requerido.',
-                    v => v >= 0 || 'Peso minimo es 0 kg.',
+                    v => !!v || 'Weight is required',
+                    v => v >= 0 || 'Minimum weight is 0 kg',
                 ],
                 cpbminRules:[
-                    v => !!v || 'El CPB es requerido.',
-                    v => v >= 0 || 'Tiempo minimo es 0 minutos.',
+                    v => !!v || 'CPB is required',
+                    v => v >= 0 || 'Minimum time is 0 minutes',
                 ],
                 dhcaRules:[
-                    v => !!v || 'El DHCA es requerido.',
-                    v => v >= 0 || 'Tiempo minimo es 0 minutos.',
+                    v => !!v || 'DHCA is required',
+                    v => v >= 0 || 'Minimum time is 0 minutes',
                 ],
                 aoxtimeRules:[
-                    v => !!v || 'El AOX es requerido.',
-                    v => v >= 0 || 'Tiempo minimo es 0 minutos.',
+                    v => !!v || 'AOX is required',
+                    v => v >= 0 || 'Minimum time is 0 minutes',
                 ],
                 preopcrRules:[
-                    v => !!v || 'Creatinina Pre es requerido.',
-                    v => v >= 0 || 'Medida minima es 0.',
+                    v => !!v || 'Creatinina Pre is required',
+                    v => v >= 0 || 'Minimum measurement is 0',
                 ],
             }
         },
 
         components:{
             PanelMedico,
-            FactoresRiesgo
+            FactoresRiesgo,
+            Msg
         },
 
         computed:{
@@ -481,8 +470,6 @@ import {EventBus} from '../../main.js'
                                                             {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
                                                         })
                         // console.log(response.data)
-                        this.loading.estado = false
-
                         this.auxiliar.dni=response.data.DNI
                         this.auxiliar.nombre=response.data.Nombre
                         
@@ -523,8 +510,8 @@ import {EventBus} from '../../main.js'
                                 positivo = positivo + Math.abs(valor_peso)
                                 // console.log("positivo", positivo)
                             }else{
-                                negativo = negativo + valor_peso
-                                console.log("negativo", negativo)
+                                negativo = negativo + Math.abs(valor_peso)
+                                // console.log("negativo", negativo)
                             }
                             i = i + 1
                         }
@@ -536,7 +523,7 @@ import {EventBus} from '../../main.js'
 
                         this.resultado.probabilidad = response.data.Prediction
                         const valor_probabilidad = 100*(1 - this.resultado.probabilidad).toFixed(2)  // GENERAR LA PROBABILIDAD
-                        this.resultado.txt = `Supervivencia ${valor_probabilidad} %`
+                        this.resultado.txt = ` Survival ${valor_probabilidad} %`
 
                         if (this.resultado.probabilidad > 0.2){ //MORTALIDAD
                             this.resultado.die = true
@@ -549,19 +536,30 @@ import {EventBus} from '../../main.js'
                             // this.normalidad()  // el simulacion.simulate
                         }
                     } catch (error) {
-                        console.log(error)
+                        let msg = (Object.keys(error.response.data)).join(", ")
+                        this.snack.model_snack = true
+                        this.snack.msg = 'A valid integer is required: ' + msg
+                        this.snack.color = 'error'
+                        this.snack.icono_success = false
+                    }finally{
+                        this.loading.estado = false
                     }
                     
                 }else{
                     this.snack.vm = true
                     this.snack.color = "red"
-                    this.snack.msg = "Debe ingresar todos los campos."
+                    this.snack.msg = "You must enter all fields"
                 }
             },
 
             terminarSimulacion(){
                 this.reset()
                 this.resultado.die = false
+                this.resultado.txt = ""
+                this.impacto_positivo = 0
+                this.impacto_negativo = 0
+                this.auxiliar.dni=''
+                this.auxiliar.nombre=''
                 this.normalidad()
             },
             validarCampos(){

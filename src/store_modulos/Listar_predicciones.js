@@ -8,6 +8,13 @@ export default{
 
         predicciones:[], // En este array se guarda las predicciones de un paciente (filtro)
 
+        impacto:{
+            positivo:0,
+            negativo:0
+        },
+        loading:{
+            estado:false
+        },
 
         datacollection: {
             labels: ['','','','','','','','','',''],
@@ -32,12 +39,12 @@ export default{
                 }],
                 xAxes: [ {
                 gridLines: {
-                    display: false
+                    display: true
                 }
                 }]
             },
             legend: {
-                display: true
+                display: false
             },
             responsive: true,
             maintainAspectRatio: false
@@ -152,7 +159,7 @@ export default{
                 state.datacollection.datasets[0].backgroundColor[9] = 'rgba(255, 99, 132, 0.2)'
                 state.datacollection.datasets[0].borderColor[9] = 'rgba(255,99,132,1)'
                 state.datacollection.datasets[0].data[9] = fr.val9 }   
-        }
+        },
     },
     actions:{
         async consultarPacientes({commit}){
@@ -177,9 +184,11 @@ export default{
             }
         },
 
-        async mostrarExplicacion({commit}, id){
+        async mostrarExplicacion({commit, state}, id){
             const fr = {}
             try{
+                state.loading.estado=true
+
                 const response = await axios.get(`api/explainability/detail/${id}/`, {
                     headers: {Authorization: 'Token ' + (JSON.parse(localStorage.getItem('user_token'))).token}
                 })
@@ -207,8 +216,27 @@ export default{
 
                 commit('listar_explicacion', fr)
                 EventBus.$emit('reenviar_data', true);
+
+                let positivo = 0
+                let negativo = 0
+                let i = 0
+
+                while(i < 10){
+                    let valor_peso = fr["val"+i]
+                    if (valor_peso < 0){  // Impacto positivo
+                        positivo = positivo + Math.abs(valor_peso)
+                    }else{
+                        negativo = negativo + Math.abs(valor_peso)
+                    }
+                    i = i + 1
+                }
+                
+                state.impacto.positivo = 100*(positivo).toFixed(2) 
+                state.impacto.negativo = 100*(negativo).toFixed(2)
             }catch(error){
                 console.log(error)
+            }finally{
+                state.loading.estado=false
             }
         }
     },

@@ -12,7 +12,7 @@
             EventBus.$on('reenviar_data', clickCount => {
                 this.renderChart(this.datacollection, this.options)
             });
-            this.renderChart(this.datacollection, this.options)
+            //this.renderChart(this.datacollection, this.options)
         },
     }
 </script>

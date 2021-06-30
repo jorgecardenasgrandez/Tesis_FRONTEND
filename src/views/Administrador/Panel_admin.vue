@@ -14,7 +14,6 @@
                             </v-list-item-avatar>
 
                             <v-list-item-content>
-                                <!-- {{ get_user.first_name }} {{ get_user.last_name }} -->
                                 <v-list-item-title> {{get_first_name}} </v-list-item-title>
                                 <v-list-item-subtitle>Admnistrador</v-list-item-subtitle>
                             </v-list-item-content>
@@ -39,7 +38,7 @@
                 
                 <template v-slot:append>
                     <div class="pa-2">
-                        <v-btn color="black" dark block @click="logout">Cerrar Sesión</v-btn>
+                        <v-btn color="black" dark block @click="logout">Logout</v-btn>
                     </div>
                 </template>
         </v-navigation-drawer>

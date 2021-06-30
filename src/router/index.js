@@ -43,7 +43,6 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.ruta_protegida){
-    console.log(store.getters['usuarios_main/loggedIn'])
     if(store.getters['usuarios_main/loggedIn']){
       next()
     }else{

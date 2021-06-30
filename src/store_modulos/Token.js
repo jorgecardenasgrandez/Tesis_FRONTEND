@@ -4,7 +4,7 @@ import router from '@/router'
 export default{
     namespaced:true,
     state:{
-        user: null,
+        user: JSON.parse(localStorage.getItem('user_token')),
         snack:{
             model_snack:false,
             msg:'',
@@ -50,8 +50,8 @@ export default{
     actions:{
         cargar_local_storage({commit}){
             if (localStorage.getItem('user_token')){
-                const usuario = (JSON.parse(localStorage.getItem('user_token'))).user
-                commit('set_usuario', usuario)
+                const usuario_token = JSON.parse(localStorage.getItem('user_token'))
+                commit('set_usuario', usuario_token)
             }else{
                 commit('set_usuario', null)
             }
@@ -65,7 +65,7 @@ export default{
                     password: credenciales.password
                 }).then(response => {
                     const user = response.data.user
-                    commit('set_usuario', user)
+                    commit('set_usuario', response.data)
 
                     if (user.user_type){  // Administrador
                         router.push({name:'administrador'})
@@ -109,7 +109,12 @@ export default{
             return !!state.user 
         },
         get_first_name(state){
-            return state.user.first_name
+            if (localStorage.getItem('user_token')){
+                return state.user.user.first_name
+            }else{
+                return 'None'
+            }
+            
         }
     }
 }

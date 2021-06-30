@@ -14,8 +14,8 @@
                             </v-list-item-avatar>
 
                             <v-list-item-content>
-                                <v-list-item-title>Jorge Cardenas</v-list-item-title>
-                                <v-list-item-subtitle>Médico</v-list-item-subtitle>
+                                <v-list-item-title>{{ get_first_name }}</v-list-item-title>
+                                <v-list-item-subtitle>Doctor</v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
                         </v-list>
@@ -47,7 +47,7 @@
                 
                 <template v-slot:append>
                     <div class="pa-2">
-                        <v-btn color="black" dark block @click="logout">Cerrar Sesión</v-btn>
+                        <v-btn color="black" dark block @click="logout">Logout</v-btn>
                     </div>
                 </template>
         </v-navigation-drawer>
@@ -63,7 +63,7 @@
                 style="width: 300px"
                 class="ml-0 pl-4"
             >
-                <span class="hidden-sm-and-down">CMCA | Panel Medico</span>
+                <span class="hidden-sm-and-down">CMCA | Medical Panel</span>
             </v-toolbar-title>
 
             <v-spacer></v-spacer>
@@ -75,7 +75,7 @@
 </template>
 
 <script>
-    import {mapState, mapActions} from 'vuex'
+    import {mapState, mapGetters, mapActions} from 'vuex'
     export default {
         name:'PanelMedico',
         data: () => ({
@@ -84,7 +84,8 @@
         
         }),
         computed:{
-            ...mapState('simula',['simulacion'])
+            ...mapState('simula',['simulacion']),
+            ...mapGetters('usuarios_main', ['get_first_name'])
         },
         methods: {
             ...mapActions('usuarios_main', ['logout'])
