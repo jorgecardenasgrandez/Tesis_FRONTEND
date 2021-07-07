@@ -416,27 +416,27 @@ import {EventBus} from '../../main.js'
                     let bombeo = this.paciente.bombeo
                     let antifi = this.paciente.antifibrinoliticos
 
-                    if(sexo === "Femenino"){
+                    if(sexo === "Female"){
                         sexo = true
                     }else{
                         sexo = false
                     }
 
-                    if(parto === "Si"){
+                    if(parto === "Yes"){
                         parto = true
                     }else{
                         parto = false
                     }
 
-                    if(bombeo === "Si"){
+                    if(bombeo === "Yes"){
                         bombeo = true
                     }else{
                         bombeo = false
                     }
 
-                    if(antifi === "Aprotinina"){
+                    if(antifi === "Aprotinin"){
                         antifi = 2
-                    }else if(antifi === "Acido tranexamico"){
+                    }else if(antifi === "Tranexamic acid"){
                         antifi = 1
                     }else{
                         antifi = 0
