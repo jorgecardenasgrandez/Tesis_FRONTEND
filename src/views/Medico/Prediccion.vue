@@ -516,13 +516,13 @@ import {EventBus} from '../../main.js'
                             i = i + 1
                         }
                         // console.log(positivo, negativo)
-                        this.impacto_positivo = 100*(positivo).toFixed(2) 
-                        this.impacto_negativo = 100*(negativo).toFixed(2)
+                        this.impacto_positivo = (100*positivo).toFixed(2) 
+                        this.impacto_negativo = (100*negativo).toFixed(2)
                         // console.log(this.impacto_positivo, this.impacto_negativo) 
                         
 
                         this.resultado.probabilidad = response.data.Prediction
-                        const valor_probabilidad = 100*(1 - this.resultado.probabilidad).toFixed(2)  // GENERAR LA PROBABILIDAD
+                        const valor_probabilidad = (100*(1 - this.resultado.probabilidad)).toFixed(2)  // GENERAR LA PROBABILIDAD
                         this.resultado.txt = ` Survival ${valor_probabilidad} %`
 
                         if (this.resultado.probabilidad > 0.2){ //MORTALIDAD

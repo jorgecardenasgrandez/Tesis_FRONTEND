@@ -230,9 +230,8 @@ export default{
                     }
                     i = i + 1
                 }
-                
-                state.impacto.positivo = 100*(positivo).toFixed(2) 
-                state.impacto.negativo = 100*(negativo).toFixed(2)
+                state.impacto.positivo = (100*positivo).toFixed(2)
+                state.impacto.negativo = (100*negativo).toFixed(2)//100*((negativo).toFixed(2))
             }catch(error){
                 console.log(error)
             }finally{
