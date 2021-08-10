@@ -25,12 +25,12 @@
                 <v-divider class="mx-3"></v-divider>
                 <v-list dense rounded> 
                     <v-list-item-group color="blue darken-3 ">
-                        <v-list-item>
+                        <v-list-item :to="{name:'medico'}">
                             <v-list-item-icon >
-                                <v-icon>mdi-home</v-icon>
+                                <v-icon>mdi-clipboard-pulse</v-icon>
                             </v-list-item-icon>
-                            <v-list-item-content >
-                                <v-list-item-title> Home </v-list-item-title>
+                            <v-list-item-content>
+                                <v-list-item-title> Prediction </v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                     </v-list-item-group>

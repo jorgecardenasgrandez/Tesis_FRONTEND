@@ -85,6 +85,14 @@
                 </v-toolbar>
             </template>
 
+            <template v-slot:[`item.is_staff`]="{ item }">
+                {{ item.is_staff ? 'Administrator' : 'Doctor'}}
+            </template>
+
+            <template v-slot:[`item.genero`]="{ item }">
+                {{ item.genero === "M" ? 'Male' : 'Female'}}
+            </template>
+
             <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
                     small
